@@ -1,0 +1,8 @@
+$ ls -a
+.
+..
+$ mkdir new_dir
+$ ls -a
+.
+..
+new_dir

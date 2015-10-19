@@ -1,0 +1,13 @@
+$ ls -a
+.
+..
+usual_file
+$cat usual_file
+usual_text
+$ mv usual_file renamed_file
+$ ls -a
+.
+..
+renamed_file
+$cat renamed_file
+usual_text

@@ -1,0 +1,10 @@
+$ help |grep version
+GNU bash, version 4.3.42(1)-release (x86_64-redhat-linux-gnu)
+$ ps -p $$
+  PID TTY          TIME CMD
+18844 pts/0    00:00:00 bash
+$ echo $0
+bash
+echo $SHELL
+/bin/bash
+

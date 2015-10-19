@@ -1,0 +1,8 @@
+$ ls -a
+.
+..
+$ touch new_file
+$ ls -a
+.
+..
+new_file

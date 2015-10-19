@@ -1,0 +1,8 @@
+$ ls -a
+.
+..
+$ echo "" > new_file
+$ ls -a
+.
+..
+new_file

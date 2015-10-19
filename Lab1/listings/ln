@@ -1,0 +1,12 @@
+$ ls
+usual_file
+$ cat usual_file 
+usual text
+$ ln usual_file hardlinked_file
+hardlinked_file
+usual_file
+$ cat hardlinked_file 
+usual text
+$ echo "updated text" > hardlinked_file 
+$ cat usual_file 
+updated textls

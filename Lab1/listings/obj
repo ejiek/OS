@@ -1,0 +1,7 @@
+$ cc -c hello.c 
+$ ls
+hello.c  hello.o
+$ chmod +x hello.o
+$ ./hello.o 
+bash: ./hello.o: cannot execute binary file: Exec format error
+

@@ -1,0 +1,6 @@
+$ find . -name "dir"
+./Lab1/sandbox/dir
+$ find . -name "*file"
+./Lab1/sandbox/regular_file
+./Lab1/sandbox/exec_file
+

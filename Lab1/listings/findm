@@ -1,0 +1,6 @@
+$ find . -mtime +3
+.
+./Lab1/q
+./Lab1/input.c
+./Lab1/output.c
+./Lab1/UnixShel.html

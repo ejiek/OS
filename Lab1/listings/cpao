@@ -1,0 +1,27 @@
+$ cat old_file
+usual_text
+$ chmod +x old_file
+$ ls -l
+total 4
+-rwxrwxr-x. 1 ejiek ejiek 11 Oct 18 12:30 old_file
+$ cp --attributes-only old_file new_file
+$ ls -l
+total 4
+-rwxrwxr-x. 1 ejiek ejiek  0 Oct 18 12:31 new_file
+-rwxrwxr-x. 1 ejiek ejiek 11 Oct 18 12:30 old_file
+$ cat new_file 
+$ echo "different text">very_new_file
+$ ls -l
+total 8
+-rwxrwxr-x. 1 ejiek ejiek  0 Oct 18 12:31 new_file
+-rwxrwxr-x. 1 ejiek ejiek 11 Oct 18 12:30 old_file
+-rw-rw-r--. 1 ejiek ejiek 15 Oct 18 12:33 very_new_file
+$ cp --attributes-only old_file very_new_file 
+$ ls -l
+total 8
+-rwxrwxr-x. 1 ejiek ejiek  0 Oct 18 12:31 new_file
+-rwxrwxr-x. 1 ejiek ejiek 11 Oct 18 12:30 old_file
+-rw-rw-r--. 1 ejiek ejiek 15 Oct 18 12:33 very_new_file
+$ cat very_new_file 
+different text
+

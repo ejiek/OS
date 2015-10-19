@@ -1,0 +1,12 @@
+$ ls -l
+total 4
+drwxrwxr-x. 2 ejiek ejiek 4096 Oct 18 13:25 dir
+-rwxrwxr-x. 1 ejiek ejiek    0 Oct 18 13:25 exec_file
+-rw-rw-r--. 2 ejiek ejiek    0 Oct 18 13:25 hl
+prw-rw-r--. 1 ejiek ejiek    0 Oct 18 13:36 pipe
+-rw-rw-r--. 2 ejiek ejiek    0 Oct 18 13:25 regular_file
+lrwxrwxrwx. 1 ejiek ejiek   12 Oct 18 13:31 sl -> regular_file
+srwxrwxr-x. 1 ejiek ejiek    0 Oct 18 13:37 socket1
+$ ls -l /dev/ |grep null
+crw-rw-rw-.  1 root  root      1,   3 Oct 17 20:58 null
+

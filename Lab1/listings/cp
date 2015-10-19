@@ -1,0 +1,10 @@
+$ ls -a
+.
+..
+new_file
+$ cp new_file very_new_file
+$ ls -a
+.
+..
+new_file
+very_new_file

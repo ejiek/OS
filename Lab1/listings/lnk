@@ -1,0 +1,6 @@
+$ gcc hello.o -o hello
+$ ls
+hello  hello.c  hello.o
+$ ./hello
+Hello, world!
+

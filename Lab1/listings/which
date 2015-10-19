@@ -1,0 +1,5 @@
+$ which cc
+/usr/bin/cc
+$ ls -l /usr/bin/cc
+lrwxrwxrwx. 1 root root 3 Jun 18 13:53 /usr/bin/cc -> gcc
+

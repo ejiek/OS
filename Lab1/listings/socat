@@ -1,0 +1,8 @@
+$ socat UNIX-LISTEN:socket1 LISTEN:socket2&
+[1] 6317
+$ ls
+socket1
+$ fg
+socat UNIX-LISTEN:socket1 LISTEN:socket2
+^C
+$ ls

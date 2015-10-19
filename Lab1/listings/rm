@@ -1,0 +1,13 @@
+$ touch file
+$ ls
+file
+$ rm file 
+$ ls
+$ mkdir dir
+$ ls
+dir
+$ rm dir/
+rm: cannot remove 'dir/': Is a directory
+$ rm -r dir/
+$ ls
+

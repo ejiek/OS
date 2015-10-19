@@ -1,0 +1,5 @@
+$ ls
+hello.c
+[ejiek@ePower sandbox]$ cc hello.c 
+[ejiek@ePower sandbox]$ ls
+a.out  hello.c

@@ -1,0 +1,9 @@
+$ mkfifo pipe
+$ ls
+pipe
+$ echo "Do you hear me?" > pipe&
+[1] 5682
+$ cat < pipe
+Do you hear me?
+[1]+  Done
+
