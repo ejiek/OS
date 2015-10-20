@@ -1,0 +1,12 @@
+$ ls -l | grep -v '23:'
+total 12
+drwxrwxr-x. 2 ejiek ejiek 4096 Oct 20 22:06 dir_file
+lrwxrwxrwx. 1 ejiek ejiek   12 Oct 20 22:05 link_file -> regular_file
+prw-rw-r--. 1 ejiek ejiek    0 Oct 20 22:05 pipe_file
+-rw-rw-r--. 1 ejiek ejiek    1 Oct 20 22:04 regular_file
+$ ls -l | grep -v '23:\|^t'
+drwxrwxr-x. 2 ejiek ejiek 4096 Oct 20 22:06 dir_file
+lrwxrwxrwx. 1 ejiek ejiek   12 Oct 20 22:05 link_file -> regular_file
+prw-rw-r--. 1 ejiek ejiek    0 Oct 20 22:05 pipe_file
+-rw-rw-r--. 1 ejiek ejiek    1 Oct 20 22:04 regular_file
+

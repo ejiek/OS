@@ -1,0 +1,10 @@
+$ ls
+dir_file  link_file  pipe_file  regular_file
+$ script
+Script started, file is typescript
+$ ls
+dir_file  link_file  pipe_file  regular_file  typescript
+$ exit
+exit
+Script done, file is typescript
+

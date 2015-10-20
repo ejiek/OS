@@ -1,0 +1,8 @@
+Script started on Tue 20 Oct 2015 10:31:36 PM MSK
+^[]777;notify;Command completed;ls -l^G^[]0;ejiek@ePower:~/Documents/OS/Lab1/sandbox^G^[]7;file://ePower/home/ejiek/Documents/OS/Lab1/sandbox^G[ejiek@ePower sandbox]$ ls^M
+^[[0m^[[38;5;33mdir_file^[[0m  ^[[38;5;51mlink_file^[[0m  ^[[40;38;5;11mpipe_file^[[0m  regular_file  typescript^M
+^[]777;notify;Command completed;ls^G^[]0;ejiek@ePower:~/Documents/OS/Lab1/sandbox^G^[]7;file://ePower/home/ejiek/Documents/OS/Lab1/sandbox^G[ejiek@ePower sandbox]$ exit^M
+exit^M
+
+Script done on Tue 20 Oct 2015 10:32:04 PM MSK
+

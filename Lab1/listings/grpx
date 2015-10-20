@@ -1,0 +1,16 @@
+$ ls -l
+total 12
+drwxrwxr-x. 2 ejiek ejiek 4096 Oct 20 22:06 dir_file
+-rwxrwxr-x. 1 ejiek ejiek    3 Oct 20 23:59 exec_file
+lrwxrwxrwx. 1 ejiek ejiek   12 Oct 20 22:05 link_file -> regular_file
+prw-rw-r--. 1 ejiek ejiek    0 Oct 20 22:05 pipe_file
+-rw-rw-r--. 1 ejiek ejiek    1 Oct 20 22:04 regular_file
+srwxrwxr-x. 1 ejiek ejiek    0 Oct 20 23:36 socket_file
+$ ls -l|grep  '^...x'
+drwxrwxr-x. 2 ejiek ejiek 4096 Oct 20 22:06 dir_file
+-rwxrwxr-x. 1 ejiek ejiek    3 Oct 20 23:59 exec_file
+lrwxrwxrwx. 1 ejiek ejiek   12 Oct 20 22:05 link_file -> regular_file
+srwxrwxr-x. 1 ejiek ejiek    0 Oct 20 23:36 socket_file
+$ ls -l|grep  '^-..x'
+-rwxrwxr-x. 1 ejiek ejiek    3 Oct 20 23:59 exec_file
+
