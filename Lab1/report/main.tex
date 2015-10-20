@@ -271,19 +271,19 @@ TUUUGGGOOOS   00  UUUUUU GGGGGG \#\#\#\# @@@ @@ @@:@@  \$\$\$\$\$\$\$
 
 Можем попробовать узнать, какие ещё командные оболочки нам доступны:
 \lstinputlisting[]{../listings/sh}
-С помощью мануалов было выявлено, что из вышеперечисленного является командной оболочкой
 \begin{itemize}
-\item git-shell - Restricted login shell for Git-only SSH access
-\item gnome-shell - Graphical shell for the GNOME desktop
-\item jimsh - small-footprint implementation of Tcl named Jim
-\item ksshell — an interactive kickstart shell
-\item tclsh - Simple shell containing Tcl interpreter
-\item wish - Simple windowing shell
+\item bash - GNU Bourne-Again SHell
+\item csh - символьная ссылка на tcsh
+\item sh - символьная ссылка на bash
+\item tcsh -C shell with file name completion and command line editing
 \end{itemize}
 
-Предполагаю, что не все из вышеупомянутых командных оболочек могут быть использованы как полноценный интерфейс командной строки операционной системы.
+Таким образом мы имеем два шелла: \textbf{bash}(поставляется с системой) и \textbf{tcsh}. C shell не поставляется вместе с ОС, но был установлен отдельно:
+\lstinputlisting[]{../listings/instl}
 
-\textbf{ksh}, \textbf{zsh}, \textbf{csh} или \textbf{tcsh} не были найдены.
+KornShell(\textbf{ksh}), Z shell(\textbf{zsh}) не были найдены.
+
+Попасть в другой интерпретатор можно, вызвав его. Однако, есть утилиты \textbf{chsh} b \textbf{lchsh}, позволяющие пометь интерпретатор по умолчанию.
 
 \begin{itemize}
 \item /etc - настройки
