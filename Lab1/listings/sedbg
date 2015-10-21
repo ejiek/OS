@@ -1,0 +1,5 @@
+echo "Vlad is bad" | sed 's/bad/good/'
+Vlad is good
+echo "Vlad is bad" | sed 's_bad_good_'
+Vlad is good
+
