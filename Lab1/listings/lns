@@ -3,6 +3,7 @@ usual_file
 $ cat usual_file 
 usual text
 $ ln -s usual_file symlinked_file
+$ ls
 symlinked_file
 usual_file
 $ cat symlinked_file 
