@@ -1,0 +1,39 @@
+$ ls
+$ rec
+$ echo '1st try'
+'1st try'
+$ exit
+$ ls
+record
+$ cat record
+$ echo '1st try'
+'1st try'
+$ rec
+$ echo '2nd try'
+'2nd try'
+$ exit
+$ ls
+record
+$ cat record
+$ echo '2nd try'
+'2nd try'
+$ rec -a
+$ echo '3d try'
+'3d try'
+$ exit
+$ ls
+record
+$ cat record
+$ echo '2nd try'
+'2nd try'
+$ echo '3d try'
+'3d try'
+$ rec my_record
+$ echo '4th try'
+'4th try'
+$ ls
+my_record
+record
+$ cat my_record
+$ echo '4th try'
+'4th try'
