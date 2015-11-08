@@ -12,19 +12,12 @@ if [ "$output" == "" ]; then
 fi
 
 read -p "$ " command 
-if [ "$append" == '>' ]; then
-    echo '$ '$command > $output
-else
-   echo '$ '$command >> $output
-fi
-$command | tee -a $output
-
-read -p "$ " command 
 while [ "$command" != "exit" ] 
-do 
-echo '$ '$command >>  $output
-$command | tee -a $output
+do
+eval "echo '$ $command' $append $output"
+eval $command | tee -a $output
 read -p "$ " command 
+append=">>"
 done
 
 exit 0
