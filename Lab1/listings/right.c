@@ -2,6 +2,6 @@
 
 void main(){
     char storage[1000];
-    fgets(storage, sizeof(storage)-2, stdin);
+    fgets(storage, sizeof(storage), stdin);
     printf("Right output: %s",storage);
 }
