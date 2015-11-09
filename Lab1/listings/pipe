@@ -1,0 +1,7 @@
+$ ./left
+<!this is output of LEFT!>
+$ ./right
+Keyboard input
+Right output: Keyboard input
+$ ./left | ./right
+Right output: <!this is output of LEFT!>
