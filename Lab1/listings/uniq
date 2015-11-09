@@ -1,0 +1,18 @@
+$ cat group_list | sort | uniq
+Anton Sochnev
+Daniil Alexeev
+Daria Klimova
+Ekaterina Peretyatko
+Georgy Chebotaryov
+Lena Chinaryova
+Lev Smirnov
+Maria Fomina
+Maria Khrustalyova
+Maxim Gusev
+Mikhail Chebotaryov
+Nikita Shalyapin
+Pavel Kushnarenko
+Stanislav Vasilyev
+Vitalik Filippov
+Vladislav Petrov
+Volodya Avagyan

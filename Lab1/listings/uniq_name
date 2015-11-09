@@ -1,0 +1,17 @@
+$ cat group_list | sort | uniq -w 5 -c
+      1 Anton Sochnev
+      1 Daniil Alexeev
+      1 Daria Klimova
+      1 Ekaterina Peretyatko
+      1 Georgy Chebotaryov
+      1 Lena Chinaryova
+      1 Lev Smirnov
+      2 Maria Fomina
+      1 Maxim Gusev
+      1 Mikhail Chebotaryov
+      1 Nikita Shalyapin
+      1 Pavel Kushnarenko
+      1 Stanislav Vasilyev
+      1 Vitalik Filippov
+      1 Vladislav Petrov
+      2 Volodya Avagyan
