@@ -1,0 +1,12 @@
+$ [ 1 == 0 ]; echo $?
+1
+$ [ 1 == 0 ]
+$ echo $?
+0
+$ pwd
+/home/ejiek/Documents/OS/Lab1/sandbox
+$ mkdir dir
+$ cd dir; pwd
+/home/ejiek/Documents/OS/Lab1/sandbox/dir
+$ pwd
+/home/ejiek/Documents/OS/Lab1/sandbox
