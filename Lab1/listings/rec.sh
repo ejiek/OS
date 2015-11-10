@@ -7,9 +7,7 @@ else
     output="$1"
 fi
 
-if [ "$output" == "" ]; then 
-    output='record'
-fi
+[ "$output" == "" ] && output='record'
 
 while [ true  ] 
 do
