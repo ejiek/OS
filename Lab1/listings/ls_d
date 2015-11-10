@@ -1,0 +1,5 @@
+$ ls dir
+file1
+file2
+$ ls -d dir
+dir

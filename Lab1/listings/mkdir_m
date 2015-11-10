@@ -1,0 +1,4 @@
+$ mkdir no_write_perm_dir -m u-w
+$ ls -l
+total 4
+dr-xrwxr-x. 2 ejiek ejiek 4096 Nov 10 11:00 no_write_perm_dir
