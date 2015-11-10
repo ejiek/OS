@@ -1,0 +1,10 @@
+$ cat a
+123
+456
+789
+$ cat b
+123
+4B6
+789
+$ cmp a b
+a b differ: byte 6, line 2
