@@ -1,0 +1,9 @@
+$ ./left_err | ./right_mult
+.ERROR.
+Right output: <!this is output of LEFT!>
+$ ./left_err |& ./right_mult
+Right output: .ERROR.
+Right output: <!this is output of LEFT!>
+$ ./left_err 2>&1 | ./right_mult
+Right output: .ERROR.
+Right output: <!this is output of LEFT!>
