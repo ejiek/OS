@@ -1,0 +1,27 @@
+$ ls
+types
+$ ./types
+$ ls
+types
+types.res
+$ cat types.res
+----------. 1 root root 0 Nov 14 19:21 /run/cron.reboot
+brw-rw----+ 1 root cdrom 11, 0 Nov 14 19:21 /dev/sr0
+c---------. 1 root root 5, 2 Nov 14 22:21 /dev/pts/ptmx
+d---------. 2 root root 40 Nov 14 22:21 /run/systemd/inaccessible
+lrwx------. 1 ejiek ejiek 64 Nov 15 01:02 127 /proc/2849/fd/-> /tmp/mozilla-temp-302798491 (deleted)
+prw-------. 1 root root 0 Nov 14 19:21 /run/dmeventd-client
+srw-------. 1 root root 0 Nov 14 19:21 /run/udev/control
+$ ./types my_res
+$ ls
+my_res
+types
+types.res
+$ cat my_res
+----------. 1 root root 0 Nov 14 19:21 /run/cron.reboot
+brw-rw----+ 1 root cdrom 11, 0 Nov 14 19:21 /dev/sr0
+c---------. 1 root root 5, 2 Nov 14 22:21 /dev/pts/ptmx
+d---------. 2 root root 40 Nov 14 22:21 /run/systemd/inaccessible
+lrwx------. 1 ejiek ejiek 64 Nov 15 01:02 127 /proc/2849/fd/-> /tmp/mozilla-temp-302798491 (deleted)
+prw-------. 1 root root 0 Nov 14 19:21 /run/dmeventd-client
+srw-------. 1 root root 0 Nov 14 19:21 /run/udev/control

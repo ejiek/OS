@@ -1,0 +1,9 @@
+$ cd /; ls -ld $PWD**/* 2>/dev/null | grep ^[-dplscb] | sort -k1.1,1.1 | uniq -w1 | cd -
+----------.   1 root           root                         0 Nov 14 19:21 /run/cron.reboot
+brw-rw----+   1 root           cdrom                  11,   0 Nov 14 19:21 /dev/sr0
+crw-------.   1 root           root                   10, 130 Nov 14 19:21 /dev/watchdog
+drw-r--r--.   2 root           root                        40 Nov 14 19:21 /run/libgpod
+lrwxrwxrwx.   1 root           root                         0 Nov 14 22:21 /proc/self -> 14159
+prw-------.   1 root           root                         0 Nov 14 19:21 /run/dmeventd-client
+srw-rw-rw-.   1 root           root                         0 Nov 14 19:21 /run/acpid.socket
+$ 
