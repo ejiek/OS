@@ -1,0 +1,8 @@
+$ ./hl
+!ERROR: No input file
+$ ./hl or
+!ERROR: Such file doesn't exist
+$ ./hl original
+3936662 -rw-rw-r--. 3 ejiek ejiek 0 Nov 15 22:41 /home/ejiek/Documents/OS/Lab2/sandbox/original
+3936662 -rw-rw-r--. 3 ejiek ejiek 0 Nov 15 22:41 /home/ejiek/Documents/OS/Lab2/sandbox/dir1/hl
+3936662 -rw-rw-r--. 3 ejiek ejiek 0 Nov 15 22:41 /home/ejiek/Documents/OS/Lab2/sandbox/dir2/hl
