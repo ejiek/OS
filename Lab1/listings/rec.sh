@@ -13,7 +13,7 @@ while [ true  ]
 do
 read -p "$ " command
 eval "echo '$ $command' $append $output"
-eval $command | tee -a $output
+eval $command 2>&1 | tee -a $output
 append=">>"
 done
 
