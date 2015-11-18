@@ -1,0 +1,12 @@
+$ ./return 0; echo $?
+0
+$ ./return 1; echo $?
+1
+$ ./proof
+It works!
+$ ./return 0 && ./proof
+It works!
+$ ./return 0 || ./proof
+$ ./return 1 && ./proof
+$ ./return 1 || ./proof
+It works!

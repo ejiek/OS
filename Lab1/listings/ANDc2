@@ -1,0 +1,3 @@
+$ ./return 2 || ./proof
+It works!
+$ ./return 2 && ./proof
