@@ -2,5 +2,5 @@
 file=$1; [ "$file" == "" ]&&>&2 echo "!ERROR: No input file"&&exit 1
 inode="$(ls -i $file 2>/dev/null | awk '{ print $1 }')"
 [ "$inode" == "" ]&&>&2 echo "!ERROR: Such file doesn't exist"&&exit 1
-ls -Rli $HOME | awk '{ if ($0 ~ /:$/)  e_path=substr($0, 0, length($0)-1); else { if ($1 ~ /^l/) $(NF-2)=e_path"/"$(NF-2); else { $NF=e_path"/"$NF}  print $0 } }' | grep ^$inode
+ls -Rli $HOME | awk '{ if ($0 ~ /^\//)  e_path=substr($0, 0, length($0)-1); else { if ($1 ~ /^l/) $(NF-2)=e_path"/"$(NF-2); else { $NF=e_path"/"$NF}  print $0 } }' | grep ^$inode
 exit 0
