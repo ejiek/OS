@@ -11,7 +11,7 @@ fi
 
 while [ true  ] 
 do
-read -p "$ " command
+read -rp "$ " command
 eval "echo '$ $command' $append $output"
 eval $command 2>&1 | tee -a $output
 append=">>"
