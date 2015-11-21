@@ -1,0 +1,14 @@
+$ ls -l
+total 0
+-rw-rw-r--. 1 ejiek ejiek 0 Nov 21 19:43 file
+$ ln file hard_link
+$ ls -l
+total 0
+-rw-rw-r--. 2 ejiek ejiek 0 Nov 21 19:43 file
+-rw-rw-r--. 2 ejiek ejiek 0 Nov 21 19:43 hard_link
+$ ln -s file sym_link
+$ ls -l
+total 0
+-rw-rw-r--. 2 ejiek ejiek 0 Nov 21 19:43 file
+-rw-rw-r--. 2 ejiek ejiek 0 Nov 21 19:43 hard_link
+lrwxrwxrwx. 1 ejiek ejiek 4 Nov 21 19:44 sym_link -> file
