@@ -1,0 +1,6 @@
+$ ./sym_search file
+/home/ejiek/Documents/OS/Lab2/sandbox/dir/sym_link2
+/home/ejiek/Documents/OS/Lab2/sandbox/dir/sym_link3
+/home/ejiek/Documents/OS/Lab2/sandbox/dir/sym_link4
+$ ./sym_search file | wc -l
+3
