@@ -1,0 +1,15 @@
+$ readlink dir/sym_link[1-4]
+file
+../file
+../file
+../file
+$ readlink -f dir/sym_link[1-4]
+/home/ejiek/Documents/OS/Lab2/sandbox/dir/file
+/home/ejiek/Documents/OS/Lab2/sandbox/file
+/home/ejiek/Documents/OS/Lab2/sandbox/file
+/home/ejiek/Documents/OS/Lab2/sandbox/file
+$ realpath dir/sym_link[1-4]
+/home/ejiek/Documents/OS/Lab2/sandbox/dir/file
+/home/ejiek/Documents/OS/Lab2/sandbox/file
+/home/ejiek/Documents/OS/Lab2/sandbox/file
+/home/ejiek/Documents/OS/Lab2/sandbox/file
