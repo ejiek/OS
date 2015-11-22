@@ -1,0 +1,25 @@
+$ find . -ls
+3936615   16 drwxrwxr-x   3 ejiek    ejiek       16384 Nov 23 00:12 .
+3933438    4 drwxrwxr-x   2 ejiek    ejiek        4096 Nov 23 00:12 ./dir
+3936659    0 -rw-rw-r--   2 ejiek    ejiek           0 Nov 22 23:46 ./dir/file1
+3933401    0 -rw-rw-r--   2 ejiek    ejiek           0 Nov 22 23:46 ./file0
+$ find . -name 'file?' -exec pwd \;
+/home/ejiek/Documents/OS/Lab2/sandbox
+/home/ejiek/Documents/OS/Lab2/sandbox
+$ find . -name 'file?' -execdir pwd \;
+/home/ejiek/Documents/OS/Lab2/sandbox/dir
+/home/ejiek/Documents/OS/Lab2/sandbox
+$ find . -name 'file?' -exec ln -rs {} {}.l \;
+$ find . -ls
+3936615   16 drwxrwxr-x   3 ejiek    ejiek       16384 Nov 23 00:16 .
+3936660    0 lrwxrwxrwx   1 ejiek    ejiek           5 Nov 23 00:16 ./file0.l -> file0
+3933438    4 drwxrwxr-x   2 ejiek    ejiek        4096 Nov 23 00:16 ./dir
+3936659    0 -rw-rw-r--   2 ejiek    ejiek           0 Nov 22 23:46 ./dir/file1
+3933440    0 lrwxrwxrwx   1 ejiek    ejiek           5 Nov 23 00:16 ./dir/file1.l -> file1
+3933401    0 -rw-rw-r--   2 ejiek    ejiek           0 Nov 22 23:46 ./file0
+$ find . -name 'file??*' -exec rm {} \;
+$ find . -ls
+3936615   16 drwxrwxr-x   3 ejiek    ejiek       16384 Nov 23 00:17 .
+3933438    4 drwxrwxr-x   2 ejiek    ejiek        4096 Nov 23 00:17 ./dir
+3936659    0 -rw-rw-r--   2 ejiek    ejiek           0 Nov 22 23:46 ./dir/file1
+3933401    0 -rw-rw-r--   2 ejiek    ejiek           0 Nov 22 23:46 ./file0

@@ -1,0 +1,9 @@
+$ for u in c v d p f l s; do find / -type $u -ls; done 2>/dev/null | sort -b -k3.1 | awk 'a !~ substr(,0,1){print}; {a=substr(,0,1)}'
+ 22909    0 ----------   1 root     root            0 Nov 22 15:40 /run/cron.reboot
+     2    0 c---------   1 root     root       5,   2 Nov 22 18:40 /dev/pts/ptmx
+ 12308    0 d---------   2 root     root           40 Nov 22 18:40 /run/systemd/inaccessible
+ 25380    0 lrwx------   1 ejiek    ejiek          64 Nov 22 15:40 /proc/1924/fd/12 -> socket:[31261]
+2891940    0 prw-------   1 ejiek    ejiek           0 Nov 22 16:27 /home/ejiek/.steam/steam.pipe
+577652    0 -r--------   1 colord   colord          0 Nov 22 17:29 /proc/1167/auxv
+ 16807    0 srw-------   1 root     root            0 Nov 22 15:40 /run/udev/control
+270714  136 ---s--x--x   1 root     root       139024 Nov  5 12:47 /usr/bin/sudo
