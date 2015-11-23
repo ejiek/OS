@@ -1,0 +1,11 @@
+$ touch file
+$ od file
+0000000
+$ echo 1 > file
+$ od file
+0000000 005061
+0000002
+$ od -bc file
+0000000 061 012
+          1  \n
+0000002
