@@ -1,0 +1,15 @@
+#!/bin/bash
+DIR=count_happens_here
+NAME=1
+mkdir $DIR \
+&& {
+while touch $DIR/$NAME
+do
+    let NAME+=1;
+done;
+ls -dl $DIR;
+ls -a1 $DIR | wc -l;
+rm -rf $DIR;
+exit 0; } \
+|| { exit 1; }
+

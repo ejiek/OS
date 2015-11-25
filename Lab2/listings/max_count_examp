@@ -1,0 +1,4 @@
+$ ~/Documents/OS/Lab2/sandbox/max_count.sh
+touch: cannot touch 'count_happens_here/65534': No space left on device
+drwxr-xr-x. 2 ejiek ejiek 2097152 Nov 25 03:26 count_happens_here/
+65535
