@@ -1,0 +1,2 @@
+$ ls -l /etc/shadow
+----------. 1 root root 1442 Nov  4 20:12 /etc/shadow
