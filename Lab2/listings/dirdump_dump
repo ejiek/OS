@@ -1,0 +1,3 @@
+$ debugfs /dev/sdd1
+debugfs 1.42.13 (17-May-2015)
+debugfs:  dump dir dir_dump
