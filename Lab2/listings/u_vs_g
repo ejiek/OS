@@ -1,0 +1,20 @@
+$ ls -l file
+-rw-------. 1 ejiek ejiek 4 Dec  2 11:35 file
+$ echo text > file
+$ cat file
+text
+$ chmod u-rw file
+$ chmod g+rw file
+$ ls -l file
+----rw----. 1 ejiek ejiek 5 Dec  2 11:44 file
+$ echo new text > file
+/usr/local/bin/rec: line 16: file: Permission denied
+$ cat file
+cat: file: Permission denied
+$ su lab2
+Password:
+$ groups
+lab2 ejiek
+$ echo lab2 text > file
+$ cat file
+lab2 text

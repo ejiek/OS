@@ -1,0 +1,15 @@
+$ ls -l file
+-rw-rw-rw-. 1 root root 0 Dec  2 10:43 file
+$ chmod o+x file
+chmod: changing permissions of 'file': Operation not permitted
+$ su
+Password:
+$ chmod o+x file
+$ ls -l file
+-rw-rw-rwx. 1 root root 0 Dec  2 10:43 file
+$ chmod g-w file
+$ ls -l file
+-rw-r--rwx. 1 root root 0 Dec  2 10:43 file
+$ chmod -r file
+$ ls -l file
+--w-----wx. 1 root root 0 Dec  2 10:43 file
