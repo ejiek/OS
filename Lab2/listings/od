@@ -1,11 +1,26 @@
 $ touch file
+$ ls -l file
+-rw-rw-r--. 1 ejiek ejiek 0 Dec  2 08:23 file
 $ od file
 0000000
 $ echo 1 > file
-$ od file
-0000000 005061
-0000002
+$ ls -l file
+-rw-rw-r--. 1 ejiek ejiek 2 Dec  2 08:24 file
 $ od -bc file
 0000000 061 012
           1  \n
 0000002
+$ echo 123 > file
+$ ls -l file
+-rw-rw-r--. 1 ejiek ejiek 4 Dec  2 08:37 file
+$ od -bc file
+0000000 061 062 063 012
+          1   2   3  \n
+0000004
+$ hexdump -bc file
+0000000 061 062 063 012                                                
+0000000   1   2   3  \n                                                
+0000004
+$ hexdump file
+0000000 3231 0a33                              
+0000004
