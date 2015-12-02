@@ -1,0 +1,13 @@
+[lab2]$ passwd lab2
+passwd: Only root can specify a user name.
+[lab2]$ exit
+[root]$ passwd lab2
+Changing password for user lab2.
+New password:
+BAD PASSWORD: The password is shorter than 8 characters
+Retype new password:
+passwd: all authentication tokens updated successfully.
+[root]$ exit
+[ejiek]$ su lab2
+Password:
+[lab2]$

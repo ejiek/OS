@@ -1,0 +1,13 @@
+[ejiek]$ cat /etc/passwd | grep lab2
+lab2::1001:1001::/home/lab2:/bin/bash
+su lab2
+[lab2]$ exit
+[ejiek]$ sudo vim /etc/passwd
+[ejiek]$ cat /etc/passwd | grep lab2
+lab2:test_pass:1001:1001::/home/lab2:/bin/bash
+[ejiek]$ su lab2
+Password: 
+su: Authentication failure
+[ejiek]$ su lab2
+Password:
+su: Authentication failure

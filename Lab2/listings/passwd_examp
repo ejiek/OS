@@ -1,0 +1,5 @@
+$ useradd lab2
+$ cat /etc/passwd | grep lab2
+lab2:x:1001:1001::/home/lab2:/bin/bash
+$ cat /etc/shadow |grep lab2
+lab2:!!:16770:0:99999:7:::
