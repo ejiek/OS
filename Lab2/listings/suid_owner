@@ -1,0 +1,6 @@
+$ ls -l suid
+-rwxrw-r--. 1 ejiek ejiek 8752 Dec  2 12:43 suid
+$ cat file
+<<< only ejiek has a permission to read this text >>>
+$ ./suid file
+<<< only ejiek has a permission to read this text >>>

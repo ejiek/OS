@@ -1,0 +1,6 @@
+$ ls -l file
+-rw-------. 1 ejiek ejiek 54 Dec  2 15:22 file
+$ ls -l suid
+-rwxrwxr--. 1 ejiek ejiek 8752 Dec  2 12:43 suid
+$ ./suid file
+Cannot open file

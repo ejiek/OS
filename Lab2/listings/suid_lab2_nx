@@ -1,0 +1,4 @@
+$ ls -l suid
+-rwsrw-r--. 1 ejiek ejiek 8752 Dec  2 12:43 suid
+$ ./suid file
+./suid: Permission denied
