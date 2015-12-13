@@ -1,0 +1,10 @@
+$ touch regular
+$ file regular
+regular: empty
+$ echo text > regular
+$ file regular
+regular: ASCII text
+$ file suid.c
+suid.c: C source, ASCII text
+$ file suid
+suid: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5ba6630a8d6f41a651ed633829b52998908bff5b, not stripped
