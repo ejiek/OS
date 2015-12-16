@@ -1,0 +1,13 @@
+$ mount /dev/sdd1 /depth_test/
+$ mkdir /depth_test/d1
+$ mount /dev/sdd2 /depth_test/d1/
+$ mkdir /depth_test/d1/d2
+$ mount /dev/sdd3 /depth_test/d1/d2/
+$ mkdir /depth_test/d1/d2/d3
+$ mount /dev/sdd4 /depth_test/d1/d2/d3/
+$ cat /etc/mtab | grep sdd
+/dev/sdd1 /depth_test vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,errors=remount-ro 0 0
+/dev/sdd2 /depth_test/d1 vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,errors=remount-ro 0 0
+/dev/sdd3 /depth_test/d1/d2 vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,errors=remount-ro 0 0
+/dev/sdd4 /depth_test/d1/d2/d3 vfat rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,errors=remount-ro 0 0
+

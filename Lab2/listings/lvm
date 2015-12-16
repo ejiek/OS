@@ -1,0 +1,13 @@
+$ vgs
+  VG     #PV #LV #SN Attr   VSize VFree
+  fedora   2   3   0 wz--n- 1.02t    0 
+$ lvs
+  LV         VG     Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  bigbadpool fedora -wi-ao---- 931.52g                                                    
+  root       fedora -wi-ao---- 103.41g                                                    
+  swap       fedora -wi-ao----   7.88g  
+$ pvs
+  PV         VG     Fmt  Attr PSize   PFree
+  /dev/sda2  fedora lvm2 a--  111.30g    0 
+  /dev/sdb   fedora lvm2 a--  931.51g    0 
+

@@ -1,0 +1,12 @@
+$ df -T
+Filesystem                    Type     1K-blocks      Used Available Use% Mounted on
+devtmpfs                      devtmpfs   4075804         0   4075804   0% /dev
+tmpfs                         tmpfs      4086536     42856   4043680   2% /dev/shm
+tmpfs                         tmpfs      4086536      2076   4084460   1% /run
+tmpfs                         tmpfs      4086536         0   4086536   0% /sys/fs/cgroup
+/dev/mapper/fedora-root       ext4     106603584  55142556  46022772  55% /
+tmpfs                         tmpfs      4086536       564   4085972   1% /tmp
+/dev/sda1                     ext4        487652    199937    258019  44% /boot
+tmpfs                         tmpfs       817308      2316    814992   1% /run/user/42
+tmpfs                         tmpfs       817308        84    817224   1% /run/user/1000
+/dev/mapper/fedora-bigbadpool ext4     961310024 352385700 560069492  39% /run/media/ejiek/Pool

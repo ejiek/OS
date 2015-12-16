@@ -1,0 +1,15 @@
+$ fdisk -l /dev/sdd | tail -n5
+Device     Boot   Start     End Sectors   Size Id Type
+/dev/sdd1          2048 2002047 2000000 976.6M  c W95 FAT32 (LBA)
+/dev/sdd2       2002944 4002943 2000000 976.6M  c W95 FAT32 (LBA)
+/dev/sdd3       4003840 6003839 2000000 976.6M  c W95 FAT32 (LBA)
+/dev/sdd4       6004736 8004735 2000000 976.6M  c W95 FAT32 (LBA)
+$ fdisk /dev/sdd
+
+Welcome to fdisk (util-linux 2.27.1).
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+
+Command (m for help): n
+To create more partitions, first replace a primary with an extended partition.
