@@ -1,0 +1,21 @@
+$ objdump -d -M intel suid | head -n20
+
+suid:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+00000000004005e0 <_init>:
+  4005e0:	48 83 ec 08          	sub    rsp,0x8
+  4005e4:	48 8b 05 fd 09 20 00 	mov    rax,QWORD PTR [rip+0x2009fd]        # 600fe8 <_DYNAMIC+0x1d8>
+  4005eb:	48 85 c0             	test   rax,rax
+  4005ee:	74 05                	je     4005f5 <_init+0x15>
+  4005f0:	e8 5b 00 00 00       	call   400650 <__gmon_start__@plt>
+  4005f5:	48 83 c4 08          	add    rsp,0x8
+  4005f9:	c3                   	ret    
+
+Disassembly of section .plt:
+
+0000000000400600 <putchar@plt-0x10>:
+  400600:	ff 35 02 0a 20 00    	push   QWORD PTR [rip+0x200a02]        # 601008 <_GLOBAL_OFFSET_TABLE_+0x8>
+  400606:	ff 25 04 0a 20 00    	jmp    QWORD PTR [rip+0x200a04]        # 601010 <_GLOBAL_OFFSET_TABLE_+0x10>
