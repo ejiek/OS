@@ -1,0 +1,22 @@
+$ ls -ld sandbox/
+dr-x------. 2 ejiek ejiek 4096 Mar  1 12:19 sandbox/
+$ ls -l sandbox/
+total 4
+-rw-r--r--. 1 root  root   0 Mar  1 12:19 another_file
+-rw-rw-r--. 1 ejiek ejiek 15 Mar  1 11:37 file
+$ cat sandbox/file
+text from file
+$ echo new text from file > sandbox/file
+$ cat sandbox/file
+new text from file
+$ rm sandbox/another_file
+rm: remove write-protected regular empty file 'sandbox/another_file'? yes
+$ mv sandbox/file sandbox/new_file
+mv: cannot move 'sandbox/file' to 'sandbox/new_file': Permission denied
+$ touch sandbox/new_file
+touch: cannot touch 'sandbox/new_file': Permission denied
+$ ls sandbox/
+another_file
+file
+$ cd sandbox/ ; pwd
+/home/ejiek/Documents/OS/Lab2/sandbox

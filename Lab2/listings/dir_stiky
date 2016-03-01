@@ -1,0 +1,9 @@
+$ echo $USER
+win
+$ groups
+win ejiek
+$ ls -ld sandbox/
+drwxrwxrwx. 2 ejiek ejiek 4096 Mar  1 12:19 sandbox/
+$ rm -f sandbox/another_file 
+$ rm -rf sandbox/
+

@@ -1,0 +1,19 @@
+$ ls -ld sandbox/
+d--x------. 2 ejiek ejiek 4096 Mar  1 12:19 sandbox/
+$ ls sandbox/
+ls: cannot open directory sandbox/: Permission denied
+$ ls -l sandbox/
+ls: cannot open directory sandbox/: Permission denied
+$ cd sandbox ; pwd
+/home/ejiek/Documents/OS/Lab2/sandbox
+$ cat file
+text from file
+$ echo new text from file > file
+$ cat file
+new text from file
+$ mv file new_file
+mv: cannot move 'file' to 'new_file': Permission denied
+$ rm file
+rm: cannot remove 'file': Permission denied
+$ echo very new text from file > new_file
+new_file: Permission denied

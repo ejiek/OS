@@ -1,0 +1,11 @@
+$ echo $USER
+win
+$ groups
+win ejiek
+$ ls -ld sandbox/
+drwxrwxrwt. 2 ejiek ejiek 4096 Mar  1 12:19 sandbox/
+$ rm -rf sandbox/
+rm: cannot remove 'sandbox/file': Operation not permitted
+rm: cannot remove 'sandbox/another_file': Operation not permitted
+$ rm -f sandbox/another_file 
+rm: cannot remove 'sandbox/another_file': Operation not permitted

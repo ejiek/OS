@@ -1,0 +1,19 @@
+$ ls -ld sandbox/
+drw-------. 2 ejiek ejiek 4096 Mar  1 12:19 sandbox/
+$ ls sandbox/
+another_file
+file
+$ ls -l sandbox/
+ls: cannot access sandbox/file: Permission denied
+ls: cannot access sandbox/another_file: Permission denied
+total 0
+-????????? ? ? ? ?            ? another_file
+-????????? ? ? ? ?            ? file
+$ cat sandbox/file
+cat: sandbox/file: Permission denied
+$ touch sandbox/file
+touch: cannot touch 'sandbox/file': Permission denied
+$ rm sandbox/another_file
+rm: cannot remove 'sandbox/another_file': Permission denied
+$ cd sandbox/
+cd: sandbox/: Permission denied

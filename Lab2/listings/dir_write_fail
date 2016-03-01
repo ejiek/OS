@@ -1,0 +1,8 @@
+$ ls -ld sandbox/
+d-w-------. 2 ejiek ejiek 4096 Mar  1 12:19 sandbox/
+$ ls sandbox/
+ls: cannot open directory sandbox/: Permission denied
+$ cat sandbox/file
+cat: sandbox/file: Permission denied
+$ touch sandbox/file
+touch: cannot touch 'sandbox/file': Permission denied
