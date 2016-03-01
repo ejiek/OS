@@ -1,0 +1,36 @@
+$ ls /mnt/usb/
+$ fdisk -l | tail
+
+Disk /dev/sdb: 15.7 GiB, 16844324864 bytes, 32899072 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x000c14fa
+
+Device     Boot Start      End  Sectors  Size Id Type
+/dev/sdb1  *     2048 32896000 32893953 15.7G  7 HPFS/NTFS/exFAT
+$ tail -n3 /etc/mtab 
+tmpfs /run/user/1000 tmpfs rw,seclabel,nosuid,nodev,relatime,size=373844k,mode=700,uid=1000,gid=1000 0 0
+gvfsd-fuse /run/user/1000/gvfs fuse.gvfsd-fuse rw,nosuid,nodev,relatime,user_id=1000,group_id=1000 0 0
+fusectl /sys/fs/fuse/connections fusectl rw,relatime 0 0
+$ tail -n4 /etc/fstab 
+/dev/mapper/fedora-root /                       ext4    defaults        1 1
+UUID=8c7d6d4b-1173-4ceb-8a9d-b1885f3c07c4 /boot                   ext4    defaults        1 2
+UUID=8000-F815          /boot/efi               vfat    umask=0077,shortname=winnt 0 2
+/dev/mapper/fedora-swap swap                    swap    defaults        0 0
+$ echo /dev/sdb1 /mnt/usb ntfs defaults 0 0 >> /etc/fstab
+$ mount -a
+$ ls /mnt/usb/
+autorun.inf  bootmgr  intel_dump  sources  System Volume Information
+boot         efi      setup.exe   support  upgrade
+$ tail -n3 /etc/mtab 
+gvfsd-fuse /run/user/1000/gvfs fuse.gvfsd-fuse rw,nosuid,nodev,relatime,user_id=1000,group_id=1000 0 0
+fusectl /sys/fs/fuse/connections fusectl rw,relatime 0 0
+/dev/sdb1 /mnt/usb fuseblk rw,relatime,user_id=0,group_id=0,allow_other,blksize=4096 0 0
+$ umount /dev/sdb1
+$ tail -n3 /etc/mtab 
+tmpfs /run/user/1000 tmpfs rw,seclabel,nosuid,nodev,relatime,size=373844k,mode=700,uid=1000,gid=1000 0 0
+gvfsd-fuse /run/user/1000/gvfs fuse.gvfsd-fuse rw,nosuid,nodev,relatime,user_id=1000,group_id=1000 0 0
+fusectl /sys/fs/fuse/connections fusectl rw,relatime 0 0
+
