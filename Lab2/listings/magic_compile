@@ -1,0 +1,7 @@
+$ ls
+file_to_test magic_test
+$ file -C -m magic_test
+$ ls
+file_to_test magic_test magic_test.mgc
+$ file -m magic_test.mgc file_to_test
+file_to_test: Harry Houdini , ASCII text

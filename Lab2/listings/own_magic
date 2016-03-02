@@ -1,0 +1,8 @@
+$ cat file_to_test
+##Erik_Weisz this file is full of magic
+$ file file_to_test
+file_to_test: ASCII text
+$ cat magic_test
+2	string	Erik_Weisz	Harry Houdini 
+$ file -m magic_test file_to_test
+file_to_test: Harry Houdini 

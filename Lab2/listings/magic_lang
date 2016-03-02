@@ -1,0 +1,4 @@
+$ cat magic_test
+2	search	Erik_Weisz	Harry Houdini 
+$ file -m magic_test file_to_test
+file_to_test: Harry Houdini , ASCII text

@@ -1,0 +1,11 @@
+$ file report/main.tex
+report/main.tex: LaTeX 2e document, UTF-8 Unicode text, with very long lines
+$ cat /usr/share/misc/magic | grep 'LaTeX 2e document'
+0	search/4096	\\documentclass	LaTeX 2e document text
+$ file listings/max_count
+listings/max_count: Bourne-Again shell script, ASCII text executable
+$ cat /usr/share/misc/magic | grep 'Bourne-Again shell script * executable'
+0	string/wb	#!\ /bin/bash	Bourne-Again shell script executable (binary data)
+0	string/wb	#!\ /usr/bin/bash	Bourne-Again shell script executable (binary data)
+0	string/wb	#!\ /usr/local/bash	Bourne-Again shell script executable (binary data)
+0	string/wb	#!\ /usr/local/bin/bash	Bourne-Again shell script executable (binary data) 
