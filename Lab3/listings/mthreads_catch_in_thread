@@ -1,0 +1,17 @@
+$ ./mthreads 
+thread1 started
+thread1, 0
+thread2 started
+thread2, 0
+^CAccepted interrupt signal in thread
+^CAccepted interrupt signal in thread
+^CAccepted interrupt signal in thread
+^CAccepted interrupt signal in thread
+^CAccepted interrupt signal in thread
+^CAccepted interrupt signal in thread
+thread1, 1
+thread2, 1
+^Z
+[1]  + 31199 suspended  ./mthreads
+$ kill %1
+[1]  + 31199 terminated  ./mthreads

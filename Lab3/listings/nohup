@@ -1,0 +1,7 @@
+$ nohup ./son3 &
+[1] 15095
+nohup: ignoring input and appending output to 'nohup.out'
+
+$ ps | grep son3
+15095 pts/2    00:00:00 son3
+

@@ -1,0 +1,13 @@
+$ ./father 
+
+
+ FATHER PARAM pid=14154 ppid-7562
+
+ SON PARAM: pid=14156 ppid=14154 
+
+ SON PARAM: pid=14157 ppid=14154 
+
+ SON PARAM: pid=14155 ppid=14154 
+
+my signal SIGUSR1 accepted
+

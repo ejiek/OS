@@ -1,0 +1,16 @@
+$ ./father_wait 
+
+FATHER PARAM: pid = 12055, ppid = 18110
+
+
+ Son param: pid = 12056, ppid = 12055
+  PID TTY      STAT   TIME COMMAND
+15269 tty2     Rl+    3:08 /usr/libexec/gnome-terminal-server
+20805 pts/1    Ss     0:00  \_ bash
+18110 pts/2    Ss     0:01  \_ bash
+12055 pts/2    S+     0:00  |   \_ ./father_wait
+12056 pts/2    S+     0:00  |       \_ son
+12057 pts/2    R+     0:00  |       \_ ps xf
+18182 pts/3    Ss+    0:00  \_ bash
+Wait result: wait = 12056, status = 0
+

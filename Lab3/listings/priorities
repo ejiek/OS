@@ -1,0 +1,7 @@
+$ ./priorities 
+SCHED_FIFO : from 1 to 99
+SCHED_RR : from 1 to 99
+SCHED_OTHER: from 0 to 0
+Current policy for this proccess: SCHED_OTHER
+Current priority for this proccess: 0
+

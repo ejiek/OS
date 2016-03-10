@@ -1,0 +1,14 @@
+$ ./mthreads 
+thread1 started
+thread2 started
+thread2, 0
+thread1, 0
+thread1, 1
+thread1, 2
+thread1, 3
+^CAccepted 1 interrupt signal in thread
+thread1, 4
+^CAccepted 2 interrupt signal in thread
+^CAccepted 3 interrupt signal in thread
+^C
+

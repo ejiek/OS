@@ -1,0 +1,17 @@
+$ ./mthreads                         
+thread2, 0
+thread1, 0
+thread1, 1
+thread1, 2
+thread1, 3
+thread1, 4
+thread2, 1
+thread1, 5
+thread1, 6
+thread1, 7
+thread1, 8
+thread1, 9
+thread2, 2
+thread1, 10
+^C
+

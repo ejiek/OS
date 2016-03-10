@@ -1,0 +1,11 @@
+$ ./paralell 
+Father process, pid=4004, ppid=3483
+Son process, pid=4005, ppid=4004
+Process finished 4005
+Process finished 4004
+$ gcc -o paralell paralell.c
+$ ./paralell 
+Father process, pid=4014, ppid=3483
+Son process, pid=4015, ppid=4014
+Process finished 4014
+Process finished 4015

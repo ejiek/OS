@@ -1,0 +1,8 @@
+int execl(char * pathname, char * arg0, arg1, ..., argn, NULL);
+int execle(char * pathname, char * arg0, arg1, ..., argn, NULL, char ** envp);
+int execlp(char * pathname, char * arg0, arg1, ..., argn, NULL);
+int execlpe(char *  pathname, char * arg0, arg1, ..., argn, NULL, char ** envp);
+int execv(char * pathname, char * argv[]);
+int execve(char * pathname, char * argv[], char ** envp);
+int execvp(char * pathname, char * argv[]);
+int execvpe(char * pathname, char * argv[], char ** envp);
