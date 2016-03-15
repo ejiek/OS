@@ -88,10 +88,9 @@ void main() {
 	puts("Main thread: create thread 3");
 	prnt_policy(0);
 	pthread_create(&t3, NULL, thread3, NULL);
-	sleep(2);
+	pthread_join(t3, NULL);
 	prnt_policy(0);
 
-	pthread_join(t3, NULL);
 
 }
 
