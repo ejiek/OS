@@ -1,0 +1,7 @@
+$ ./clone               
+__Father PID: 28813  PPID: 27534
+The variable was 9
+__Child PID: 28814  PPID: 28813
+The variable is now 9
+File Read Error: Bad file descriptor
+

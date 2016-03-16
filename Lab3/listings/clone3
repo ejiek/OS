@@ -1,0 +1,7 @@
+$ ./clone
+__Father PID: 25093  PPID: 27534
+The variable was 9
+__Child PID: 25094  PPID: 25093
+The variable is now 42
+We can read from the file
+
