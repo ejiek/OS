@@ -1,0 +1,17 @@
+$ ./a.out&
+[1] 26051
+                                                                                                                     
+Father started: pid = 26051,ppid = 19907
+
+Son started: pid = 26053,ppid = 26051
+Successfully sent SIGUSR1
+Catched signal SIGUSR1
+Parent = 19907
+$ kill -SIGUSR2 26051
+Catched signal SIGUSR2
+Parent = 19907
+$ kill -SIGCHLD 26051
+$ kill -SIGINT 26051 
+[1]  + 26051 interrupt  ./a.out
+
+

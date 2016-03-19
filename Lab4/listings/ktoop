@@ -1,0 +1,11 @@
+$ ./a.out             
+Thread 1
+Main Thread
+Interruption catched!
+Main Thread
+Main Thread
+Main Thread
+Main Thread
+Main Thread
+^C
+

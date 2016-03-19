@@ -1,0 +1,10 @@
+$ sandbox/a.out             
+Main Thread
+Main Thread
+Thread 1
+Interruption catched!
+Thread 1
+Thread 1
+Thread 1
+^C
+

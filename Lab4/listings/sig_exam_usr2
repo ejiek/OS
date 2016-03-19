@@ -1,0 +1,15 @@
+$ ./a.out&             
+[1] 11414
+                                                                                                                     
+Father started: pid = 11414,ppid = 19907
+
+Son started: pid = 11415,ppid = 11414
+Successfully sent SIGUSR1
+Catched signal SIGUSR1
+Parent = 19907
+$ kill -SIGUSR2 11414                                            
+Catched signal SIGUSR2
+Parent = 19907
+$ kill -SIGUSR2 11414
+[1]  + 11414 user-defined signal 2  ./a.out
+

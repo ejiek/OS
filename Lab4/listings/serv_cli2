@@ -1,0 +1,19 @@
+$ ./server&
+[1] 10950
+Using default file name 'testFile.txt'
+$ ./client 
+Waiting for client write to channnel
+[1]  + 10950 suspended (tty input)  ./server
+$ ls -ls 
+total 60
+ 8 drwxrwxr-x. 2 ejiek ejiek 4096 Mar 17 04:19 .
+ 8 drwxrwxr-x. 5 ejiek ejiek 4096 Mar 16 22:02 ..
+ 0 prw-rw-r--. 1 ejiek ejiek    0 Mar 17 04:19 channel1
+ 0 prw-rw-r--. 1 ejiek ejiek    0 Mar 17 04:19 channel2
+12 -rwxrwxr-x. 1 ejiek ejiek 9064 Mar 17 04:04 client
+ 4 -rw-rw-r--. 1 ejiek ejiek 1020 Mar 17 04:04 client.c
+12 -rwxrwxr-x. 1 ejiek ejiek 9192 Mar 17 04:18 server
+ 4 -rw-rw-r--. 1 ejiek ejiek 1355 Mar 17 04:18 server2.c
+ 4 -rw-rw-r--. 1 ejiek ejiek 1266 Mar 17 04:01 server.c
+ 4 -rw-rw-r--. 1 ejiek ejiek   32 Mar 17 04:09 testFile.txt
+ 4 -rw-rw-r--. 1 ejiek ejiek 1810 Mar 17 04:18 tmp

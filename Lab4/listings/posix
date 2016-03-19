@@ -1,0 +1,10 @@
+$ ./a.out 
+We get SIGUSR1
+We get SIGUSR2
+We get SIGRTMIN
+We get SIGRTMIN
+We get SIGRTMIN + 1
+We get SIGRTMIN + 1
+We get SIGRTMIN + 3
+We get SIGRTMIN + 3
+

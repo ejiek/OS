@@ -1,0 +1,10 @@
+$ sandbox/a.out&
+[1] 9334
+$ kill -SIGUSR1 %1  
+SIGUSR1 catched
+$ kill -SIGINT %1
+$ jobs
+[1]  + running    sandbox/a.out
+$
+[1]  + 9334 interrupt  sandbox/a.out
+$

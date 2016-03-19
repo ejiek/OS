@@ -1,0 +1,13 @@
+$ cat from.txt 
+string one
+string two
+$ ./a.out     
+Using default fileNames 'from.txt','to.txt'
+pipe is successfully created
+Read from pipe: string one
+string two
+
+$ cat to.txt 
+string one
+string two
+

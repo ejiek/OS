@@ -1,0 +1,9 @@
+$ ./a.out&
+[1] 26857
+$ kill -SIGUSR1 %1
+SIGUSR1 catched, sending SIGINT 
+$ jobs
+[1]  + running    ./a.out
+$
+[1]  + 26857 interrupt  ./a.out
+$

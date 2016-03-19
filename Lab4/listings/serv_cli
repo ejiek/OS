@@ -1,0 +1,13 @@
+$ ./server&
+[1] 32680
+Using default file name 'testFile.txt'
+$ ./client 
+Part of file: first string
+second
+Last string
+
+[1]  + 32680 done       ./server
+$ cat testFile.txt 
+first string
+second
+Last string

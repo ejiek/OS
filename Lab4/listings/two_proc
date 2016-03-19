@@ -1,0 +1,7 @@
+$ ./receiver&
+[1] 19311
+Receiver pid=19311 
+$ ./transmitter 19311
+Signal SIGUSR1 sent. Current time and date: Thu Mar 17 02:23:47 2016
+Signal SIGUSR1 accepted. Current time and date: Thu Mar 17 02:23:47 2016
+[1]  + 19311 done       ./receiver 
