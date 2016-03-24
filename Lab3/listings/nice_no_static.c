@@ -64,6 +64,12 @@ void main() {
 	puts("");
 	
 
+	printf("setpriority 50\n");
+	setpriority(PRIO_PROCESS, getpid(), 50);
+	prnt_priority(0);
+	puts("");
+
+
 	puts("Main thread: switch policy to SCHED_RR with max priority");
 	sp.sched_priority = sched_get_priority_max(SCHED_RR);
 	sched_setscheduler(0, SCHED_RR, &sp);
@@ -72,8 +78,8 @@ void main() {
 	puts("");
 	
 
-	printf("setpriority 50\n");
-	setpriority(PRIO_PROCESS, getpid(), 50);
+	printf("setpriority 10\n");
+	setpriority(PRIO_PROCESS, getpid(), 10);
 	prnt_priority(0);
 	puts("");	
 

@@ -19,3 +19,10 @@ Thread 3: change policy to SCHED_OTHER by group id
 Thread 3: SCHED__FIFO
 Main thread: SCHED_OTHER
 
+Main thread: SCHED_OTHER
+Thread 4: SCHED_OTHER
+waiting for other procces to change my policy
+My PID: 1708
+Thread 4: SCHED_OTHER
+Main thread: SCHED__FIFO
+

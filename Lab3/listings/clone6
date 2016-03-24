@@ -1,0 +1,6 @@
+$ gcc clone.c -o clone
+clone.c: In function 'main':
+clone.c:30:41: error: 'CLONE_PID' undeclared (first use in this function)
+  clone(&do_something, child_stack+8192, CLONE_PID, NULL);
+                                         ^
+clone.c:30:41: note: each undeclared identifier is reported only once for each function it appears in

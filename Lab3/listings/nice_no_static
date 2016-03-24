@@ -12,16 +12,20 @@ nice 20
 Static Priority: 0
 Dynamic Priority:: 10
 
+setpriority 50
+Static Priority: 0
+Dynamic Priority:: 19
+
 Main thread: switch policy to SCHED_RR with max priority
 Main thread policy: SCHED_RR
 Static Priority: 99
-Dynamic Priority:: 10
-
-setpriority 50
-Static Priority: 99
 Dynamic Priority:: 19
+
+setpriority 10
+Static Priority: 99
+Dynamic Priority:: 10
 
 nice -10
 Static Priority: 99
-Dynamic Priority:: 9
+Dynamic Priority:: 0
 

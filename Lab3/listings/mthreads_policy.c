@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-pthread_t t1,t2, t3;
+pthread_t t1,t2, t3, t4;
 struct sched_param sp;
 
 
@@ -63,6 +63,12 @@ void* thread3() {
 	prnt_policy(3);
 }
 
+void* thread4() {
+	prnt_policy(4);
+	sleep(9);
+	prnt_policy(4);
+}
+
 void main() {
 	prnt_policy(0);
 	puts("Main thread: create thread 1");
@@ -90,7 +96,14 @@ void main() {
 	pthread_create(&t3, NULL, thread3, NULL);
 	pthread_join(t3, NULL);
 	prnt_policy(0);
+	puts("");
 
-
+	pthread_create(&t4, NULL, thread4, NULL);
+	prnt_policy(0);
+	sleep(1);
+	puts("waiting for other procces to change my policy");
+	printf("My PID: %d\n", getpid());
+	sleep(9);
+	prnt_policy(0);
 }
 
