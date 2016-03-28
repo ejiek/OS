@@ -276,6 +276,11 @@ struct sigaction * oact );
 
 	Главное применение неименованных каналов в ОС Unix --– реализация конвейеров команд в интерпретаторах командной строки. Например, при выполнении конвейера ls|sort|grep интерпретатор создаст три процесса с двумя каналами между ними так, что открытый для чтения конец каждого канала будет подключен к стандартному потоку ввода, а открытый на запись — к стандартному потоку вывода.
 	
+	Пример использования неименнованого канала в командном интерпретаторе:
+	\lstinputlisting[style=crs_bash]{../listings/pipe_bash}
+	Первая команда просто выводит список файлов в директории, а вторая команда выводит список файлов не на выходной поток, а через неименованный канал подаёт на вход следующей команды (grep)
+	
+	
 	\subsubsection{Именованные каналы}
 	Именованные каналы в Unix функционируют подобно неименованным — они позволяют передавать данные только в одну сторону. Однако в отличие от неименоаванных каналов каждому каналу FIFO сопоставляется полное имя в файловой системе, что позволяет двум неродственным процессам обратиться к одному и тому же FIFO. Аббревиатура FIFO расшифровывается как «first in, first out» — «первым вошел, первым вышел», то есть эти каналы работают как очереди.
 	
@@ -952,213 +957,77 @@ Can't recv data from client, ending thread
 	\end{lstlisting}
 	
 	Реализация подобной функциональности с помощью UDP сокетов:
-	Исходный код программы udpserver.c:
-	\begin{lstlisting}[style=crs_cpp]
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/types.h> 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#define BUFSIZE 1024
-
-void error(char *msg) {
-  perror(msg);
-  exit(1);
-}
-
-int main(int argc, char **argv) {
-  int sockfd; /* socket */
-  int portno = 5005; /* port to listen on */
-  int clientlen; /* byte size of client's address */
-  struct sockaddr_in serveraddr; /* server's addr */
-  struct sockaddr_in clientaddr; /* client addr */
-  struct hostent *hostp; /* client host info */
-  char buf[BUFSIZE]; /* message buf */
-  char *hostaddrp; /* dotted decimal host addr string */
-  int optval; /* flag value for setsockopt */
-  int n; /* message byte size */
-  /* 
-   * socket: create the parent socket 
-   */
-  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-  if (sockfd < 0) 
-    error("ERROR opening socket");
-
-  /* setsockopt: Handy debugging trick that lets 
-   * us rerun the server immediately after we kill it; 
-   * otherwise we have to wait about 20 secs. 
-   * Eliminates "ERROR on binding: Address already in use" error. 
-   */
-  optval = 1;
-  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, 
-	     (const void *)&optval , sizeof(int));
-
-  /*
-   * build the server's Internet address
-   */
-  bzero((char *) &serveraddr, sizeof(serveraddr));
-  serveraddr.sin_family = AF_INET;
-  serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  serveraddr.sin_port = htons((unsigned short)portno);
-
-  /* 
-   * bind: associate the parent socket with a port 
-   */
-  if (bind(sockfd, (struct sockaddr *) &serveraddr, 
-	   sizeof(serveraddr)) < 0) 
-    error("ERROR on binding");
-
-  /* 
-   * main loop: wait for a datagram, then echo it
-   */
-  clientlen = sizeof(clientaddr);
-  while (1) {
-
-    /*
-     * recvfrom: receive a UDP datagram from a client
-     */
-    bzero(buf, BUFSIZE);
-    n = recvfrom(sockfd, buf, BUFSIZE, 0,
-		 (struct sockaddr *) &clientaddr, &clientlen);
-    if (n < 0)
-      error("ERROR in recvfrom");
-
-    /* 
-     * gethostbyaddr: determine who sent the datagram
-     */
-    hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, 
-			  sizeof(clientaddr.sin_addr.s_addr), AF_INET);
-    if (hostp == NULL)
-      error("ERROR on gethostbyaddr");
-    hostaddrp = inet_ntoa(clientaddr.sin_addr);
-    if (hostaddrp == NULL)
-      error("ERROR on inet_ntoa\n");
-    printf("server received: %s\n", buf);
-    
-    /* 
-     * sendto: echo the input back to the client 
-     */
-    n = sendto(sockfd, buf, strlen(buf), 0, 
-	       (struct sockaddr *) &clientaddr, clientlen);
-    if (n < 0) 
-      error("ERROR in sendto");
-  }
-}
-	\end{lstlisting}
+	Исходный код программы udp/server.c:
+	\lstinputlisting[style=crs_cpp]{../listings/udp/server.c}
 		
-	Исходный код программы udpclient.c:
-	\begin{lstlisting}[style=crs_cpp]
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h> 
-
-#define BUFSIZE 1024
-
-void error(char *msg) {
-    perror(msg);
-    exit(0);
-}
-
-int main(int argc, char **argv) {
-    int sockfd, portno = 5005, n;
-    int serverlen;
-    struct sockaddr_in serveraddr;
-    struct hostent *server;
-    char hostname[] = "localhost";
-    char buf[BUFSIZE];
-
-
-    /* socket: create the socket */
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0) 
-        error("ERROR opening socket");
-
-    /* gethostbyname: get the server's DNS entry */
-    server = gethostbyname(hostname);
-    if (server == NULL) {
-        fprintf(stderr,"ERROR, no such host as %s\n", hostname);
-        exit(0);
-    }
-
-    /* build the server's Internet address */
-    bzero((char *) &serveraddr, sizeof(serveraddr));
-    serveraddr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
-	  (char *)&serveraddr.sin_addr.s_addr, server->h_length);
-    serveraddr.sin_port = htons(portno);
-
-    while(1) {
-		/* get a message from the user */
-		bzero(buf, BUFSIZE);
-		printf("Please enter msg: ");
-		fgets(buf, BUFSIZE, stdin);
-
-		/* send the message to the server */
-		serverlen = sizeof(serveraddr);
-		n = sendto(sockfd, buf, strlen(buf), 0, &serveraddr, serverlen);
-		if (n < 0) 
-		  error("ERROR in sendto");
-	
-		/* print the server's reply */
-		n = recvfrom(sockfd, buf, strlen(buf), 0, &serveraddr, &serverlen);
-		if (n < 0) 
-		  error("ERROR in recvfrom");
-		printf("Echo from server: %s", buf);
-	    }
-    return 0;
-}
-	\end{lstlisting}
+	Исходный код программы udp/client.c:
+	\lstinputlisting[style=crs_cpp]{../listings/udp/client.c}
 	
 	Для взаимодействия используются UDP сокеты, это значит, что между сервером и клиентом не устанавливается логическое соединение.
 	
 	Клиент 1:
 	\begin{lstlisting}[style=crs_bash]
-$ ./udpclient 
-Please enter msg: asf
-Echo from server: asf
-Please enter msg: asdf
-Echo from server: asdf
-Please enter msg: ;lal
-Echo from server: ;lal
-Please enter msg: asdasd
-Echo from server: asdasd
+$  ./client
+Insert server addres (default 127.0.0.1)
+
+Insert server port (default 8888)
+
+Socket created
+Received packet from 127.0.0.1:34419
+Connected
+Colour of Server messages 
+Colour of Your messages 
+
+$ HI, can you hear me?
+HI, can you hear me?
+$ 
+Server was inactive for too long
+Socket closed
 	\end{lstlisting}
 	
 	Клиент 2:
 	\begin{lstlisting}[style=crs_bash]
-$ ./udpclient 
-Please enter msg: ad
-Echo from server: ad
-Please enter msg: lakc
-Echo from server: lakc
+$ ./client 
+Insert server addres (default 127.0.0.1)
+
+Insert server port (default 8888)
+
+Socket created
+Received packet from 127.0.0.1:53199
+Connected
+Colour of Server messages 
+Colour of Your messages 
+
+$ Hello, you are great!
+Hello, you are great!
+$ So nice to hear this
+So nice to hear this
+$ quit
+Socket closed
 	\end{lstlisting}
 	
 	Сервер:
 	\begin{lstlisting}[style=crs_bash]
-$ ./udpserver 
-server received: asf
-
-server received: asdf
-
-server received: ;lal
-
-server received: ad
-
-server received: lakc
-
-server received: asdasd
-
+$ ./server 
+Main socket: created
+Main socket: binded
+Main socket: waiting
+Main socket: connection accepted
+Main thread: new thread created, id = 0, port = 40753
+Main socket: connection accepted
+Main thread: new thread created, id = 1, port = 42343
+Subthread[0]: client was inactive for too long
+Subthread[0]: client disconnected
+Subthread[1]: client ended session
+Subthread[1]: client disconnected
+quit
+Main socket: down
+recvfrom return value: 0
+Main socket: closed
+Main thread termination phase
 	\end{lstlisting}
+	
+	Протокол UDP намного проще, так как не следит за доставкой, дублированием, перемешиванием пакетов. Его использование обоснованно в случаях, когда подобные недостатки не важны, а приоритет имеют скорость передачи и снижение нагрузки (голосовой чат, он-лайн игры, dns запросы). Однако в некоторых случаях надёжность схожая с TCP реализуется на прикладном уровне.
 	
 \section{Вывод}
 	В ОС Unix адресные пространства различных процессов изолированы друг от друга. Для взаимодействия процессов используются специальные средства IPC, включающие в себя сигналы, именованные и неименованные каналы, сообщения, сокеты, семафоры и разделяемую память.

@@ -1,0 +1,21 @@
+$ ls  
+.              pipe         server.c       toop.c
+..             pipe_bash    server_key.c   two_proc
+client.c       pipe.c       sigact         two_proc2.c
+client_key.c   posix        sigact2        two_proc.c
+echo_client.c  posix.c      sigact2.c      udp
+echo_server.c  reader.c     sigact.c       uname
+ipcs           serv_cli     sig_exam       writer.c
+kill_l         serv_cli2    sig_exam.c
+ktoop          serv_cli2_1  sig_exam_usr2
+ktoop.c        server2.c    toop
+
+$ ls | grep serv
+echo_server.c
+serv_cli
+serv_cli2
+serv_cli2_1
+server2.c
+server.c
+server_key.c
+
