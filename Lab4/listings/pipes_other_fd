@@ -1,0 +1,14 @@
+$ ./a.out                             
+Max opened files per process: 1024
+errno: 24
+Pipes created: 510
+^Z
+[1]  + 8484 suspended  ./a.out
+% ls -l /proc/8484/fd/ | grep -v pipe 
+total 0
+dr-x------. 2 ejiek ejiek  0 Mar 31 00:33 .
+dr-xr-xr-x. 9 ejiek ejiek  0 Mar 31 00:33 ..
+lrwx------. 1 ejiek ejiek 64 Mar 31 00:33 0 -> /dev/pts/2
+lrwx------. 1 ejiek ejiek 64 Mar 31 00:33 1 -> /dev/pts/2
+lrwx------. 1 ejiek ejiek 64 Mar 31 00:33 2 -> /dev/pts/2
+

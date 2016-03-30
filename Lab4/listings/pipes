@@ -1,0 +1,5 @@
+$ ./a.out 
+Max opened files per process: 1024
+errno: 24
+Pipes created: 510
+
