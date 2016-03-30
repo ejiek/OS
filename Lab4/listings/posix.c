@@ -4,115 +4,88 @@
 #include "unistd.h" 
 #include "sys/signal.h" 
 
-/* Максимальное число сигналов, которые можно принять */ 
-#define MAX_SENDED_SIGS 15 
+void printsig(int sig, int value){
+	if (sig == SIGUSR1){ 
+		printf("We get SIGUSR1\n"); 
+	} 
+	else if (sig == SIGUSR2){ 
+		printf("We get SIGUSR2\n"); 
+	} 
+	else if (sig == SIGRTMIN){ 
+		printf("We get SIGRTMIN | value :%d\n", value); 
+	} 
+	else if (sig == SIGRTMIN + 1){ 
+		printf("We get SIGRTMIN + 1 | value :%d\n", value); 
+	} 
+	else if (sig == SIGRTMIN + 3){ 
+		printf("We get SIGRTMIN + 3 | value :%d\n", value); 
+	} 
+}
 
-/* Массив, в который записываются номера принятых сигналов */ 
-int rec_sig[MAX_SENDED_SIGS]; 
-
-/* Следующий свободный для записи элемент в массиве */ 
-unsigned int nfree_elem = 0; 
-
-/* обработчик сигнала заносит номер принятого сигнала в массив */
-void sighandler(int signo) 
-{ 
-	rec_sig[nfree_elem++] = signo; 
+// Обработчик сигналов
+void sighandler(int signo, siginfo_t *siginfo) { 
+	siginfo_t localinfo = *siginfo;
+	printsig(signo,  localinfo.si_value.sival_int);
 	return; 
 } 
 
-int main(int argc, char * argv[])
-{ 
+int main(int argc, char * argv[]){ 
 	sigset_t mask;	// сигналы, которые следует блокировать 
+	int sa_flags; // необходимые флаги
 	struct sigaction act; // обеспечивает детализированный контроль над сигналами
-	int i; 
+	union sigval info_to_send; // структура, оправляемая с сигналом
 
 	memset(&act, 0, sizeof(act)); 
-	/* инициализирует набор сигналов, указанный в set, поме­чая его
-	* как пустое множество (из этого набора исключаются все сигналы) 
-	*/
 	sigemptyset(&mask);
 
-	/* Добавляем в маску те сигналы, которые мы будем  
-	* отправлять/принимать 
-	*/ 
 	sigaddset(&mask, SIGRTMIN); 
 	sigaddset(&mask, SIGRTMIN + 1);
 	sigaddset(&mask, SIGRTMIN + 3);  
 	sigaddset(&mask, SIGUSR1); 
 	sigaddset(&mask, SIGUSR2);
-	/* Устанавливаем обработчик для наших сигналов. 
-	* Добавляем наши сигналы в список блокируемых при вызове  
-	* обработчика сигналов – во избежание гонок. 
-	*/ 
+
+	sa_flags = SA_SIGINFO;
+
 	act.sa_handler = sighandler;	     	/* обработчик сигнала или действие */ 
 	act.sa_mask = mask; 			/* сигналы, которые следует блокировать */
-	/* Вызов функции sigaction() изменяет поведение сигнала, обозначенного аргументом 
-	* signo. Этот аргумент может принимать любые значения, кроме тех, что
-	* ассоциируются с SIGKILL и SIGSTOP. Если act не равно NULL, то этот системный вызов
-	* изменяет актуальное поведение сигнала так, как это указано в act. Если oldact не
-	* равно NULL, то вызов сохраняет там предшествующее (а в случае NULL  — актуальное)
-	* поведение указанного сигнала.
-	*/
+	act.sa_flags = sa_flags;
+
 	sigaction(SIGUSR1,  	&act, NULL);
 	sigaction(SIGUSR2,  	&act, NULL);
 	sigaction(SIGRTMIN, 	&act, NULL); 
 	sigaction(SIGRTMIN + 1, &act, NULL); 
 	sigaction(SIGRTMIN + 3, &act, NULL); 
  
-	/* Поведение sigprocmask() зависит от значения how, в качестве которого может
-	* служить один из следующих флагов:
-	* - SIG_SETMASK  — сигнальная маска вызывающего процесса изменяется на set;
-	* - SIG_BLOCK  — сигналы set добавляются к сигнальной маске вызывающего процес­са. 
-	* Иными словами, сигнальная маска заменяется объединением (двоичным «ИЛИ») из 
-	* актуальной маски и set;
-	* - SIG_UNBLOCK  — сигналы set удаляются из сигнальной маски вызывающего процесса. 
-	* Иными словами, сигнал заменяется пересечением (двоичным «НЕ») set.
-	*/
+	sigprocmask(SIG_BLOCK, &mask, NULL); // Блокируем сигналы
 
-	/* Блокируем доставку наших сигналов, чтобы избежать их  
-	* немедленной доставки 
-	*/ 
-	sigprocmask(SIG_BLOCK, &mask, NULL); 
-
-	/* Отправляем сигналы (не забываем о блокировке строчкой выше) */ 
-	/* с помощью функции raise() процесс легко может отправить сигнал сам себе */
+	// блок отправления сигнало
 	raise(SIGUSR1);
-	raise(SIGRTMIN + 3); 
-	raise(SIGRTMIN + 1); 
-	raise(SIGRTMIN); 
+
+	info_to_send.sival_int = 1;
+	sigqueue(getpid(), SIGRTMIN + 3, info_to_send); 
+
+	info_to_send.sival_int = 2;
+	sigqueue(getpid(), SIGRTMIN + 1, info_to_send); 
+
+	info_to_send.sival_int = 3;
+	sigqueue(getpid(), SIGRTMIN, info_to_send); 
+
 	raise(SIGUSR2);
-	raise(SIGRTMIN + 1); 
-	raise(SIGRTMIN); 
-	raise(SIGRTMIN + 3); 
+
+	info_to_send.sival_int = 4;
+	sigqueue(getpid(), SIGRTMIN + 1, info_to_send); 
+
+	info_to_send.sival_int = 5;
+	sigqueue(getpid(), SIGRTMIN, info_to_send); 
+
+	info_to_send.sival_int = 6;
+	sigqueue(getpid(), SIGRTMIN + 3, info_to_send); 
 	raise(SIGUSR1); 
 	raise(SIGUSR1); 
 
-	/* Разблокируем сигналы – все сигналы приходят одновременно */ 
+	// Разблокируем сигналы 
+	sleep(1);
 	sigprocmask(SIG_UNBLOCK, &mask, NULL); 
 
-	/* Выводим на экран список принятых сигналов в порядке их поступления */ 
-	for(i = 0; i < nfree_elem; ++i) 
-	{ 
-		if (rec_sig[i] == SIGUSR1) 
-		{ 
-			printf("We get SIGUSR1\n"); 
-		} 
-		else if (rec_sig[i] == SIGUSR2) 
-		{ 
-			printf("We get SIGUSR2\n"); 
-		} 
-		else if (rec_sig[i] == SIGRTMIN) 
-		{ 
-			printf("We get SIGRTMIN\n"); 
-		} 
-		else if (rec_sig[i] == SIGRTMIN + 1) 
-		{ 
-			printf("We get SIGRTMIN + 1\n"); 
-		} 
-		else if (rec_sig[i] == SIGRTMIN + 3) 
-		{ 
-			printf("We get SIGRTMIN + 3\n"); 
-		} 
-	} 
 	return 0; 
 }
