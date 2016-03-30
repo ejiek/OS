@@ -1,0 +1,7 @@
+$ ./a.out 
+pipe is successfully created
+65532
+65534
+65536
+^C
+
