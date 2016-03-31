@@ -1,0 +1,9 @@
+$ ./client 192.168.1.197
+Using default port 8888
+Input request (empty to exit)
+Hi from sooo different PC
+Server's response: Hi from sooo different PC
+Input request (empty to exit)
+
+Bye-bye
+

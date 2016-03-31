@@ -1,0 +1,10 @@
+$ ./client 
+Using default port 8888
+Using default addr 127.0.0.1
+Input request (empty to exit)
+Hello from the same PC
+Server's response: Hello from the same PC
+Input request (empty to exit)
+
+Bye-bye
+

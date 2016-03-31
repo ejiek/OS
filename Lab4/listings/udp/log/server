@@ -1,0 +1,25 @@
+$ ./server 
+Main socket: created
+Main socket: binded
+Main socket: waiting
+Main socket: connection accepted
+Main thread: new thread created, id = 0, ip = 127.0.0.1, port = 34757
+Subthread[0]: new port is 0
+Sending to ip = 127.0.0.1, port = 34757
+Subthread[0]: client was inactive for too long
+Subthread[0]: client disconnected
+Main socket: connection accepted
+Main thread: new thread created, id = 0, ip = 192.168.1.97, port = 50477
+Subthread[0]: new port is 0
+Sending to ip = 192.168.1.97, port = 50477
+shut 0
+Subsocket[0]: down
+Subthread[0]: client was inactive for too long
+Subsocket[0]: closed
+Subthread[0]: client disconnected
+quit
+Main socket: down
+Main socket: closed
+recvfrom return value: -1
+Main thread termination phase
+

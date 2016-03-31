@@ -747,320 +747,75 @@ Remove 0 from cell 0
 	Процессы-писатели записывают по 10 чисел в массив, процесс-писатель считывает первые 15 из записанных. По результатам синхронизация работает корректно, выхода за пределы массива нет, записанные данные не затираются до их прочтения. К примеру, в нулевую ячейку сначала первый поток-писатель записал 0, потом он же записал 5, а потом второй поток-писатель записал также 0. Все данные были прочитаны.
 
 \subsection{Сокеты}
+	Далее будут использоваться две машины, находящиеся в одной локальной сети.
+	Характеристики первой:
+	\begin{lstlisting}[style=crs_bash]
+$ uname -or
+4.4.6-300.fc23.x86_64 GNU/Linux
+$ /usr/sbin/ifconfig | grep -A1 wlp
+wlp2s0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.197  netmask 255.255.255.0  broadcast 192.168.1.255
+    \end{lstlisting}
+	
+	Характеристики второй:
+	\begin{lstlisting}[style=crs_bash]
+$ uname -or
+4.4.6-300.fc23.x86_64 GNU/Linux
+$ ifconfig | grep -A1 ^br0
+br0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.97  netmask 255.255.255.0  broadcast 192.168.1.255
+    \end{lstlisting}
+\subsubsection{TCP}	
 	Сервер прослушивает заданный порт, при приходе нового соединения, создается новый поток для его обработки. Работа с клиентом организована как бесконечный цикл, в котором выполняется прием сообщения от клиента, вывод его на экран и пересылка обратно клиенту.
 	
 	Клиентская программа после установления соединения с сервером также в бесконечном цикле выполняет чтение ввода пользователя, пересылку его серверу, и получение работы. Если была введена пустая строка, клиент завершается.
 	
-	Исходный код программы socketServer:
-	\begin{lstlisting}[style=crs_cpp]
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#define DEF_PORT 8888
-#define DEF_IP "127.0.0.1"
-
-// one client wrapper
-void* clientHandler(void* args) {
-	int sock = (int)args;
-	char buf[100];
-	int res = 0;
-	for(;;) {
-		bzero(buf,100);
-		res = readFix(sock, buf,100, 0);
-		if ( res <= 0 ) {
-			perror( "Can't recv data from client, ending thread\n" );
-			pthread_exit(NULL);
-		}
-		printf( "Some client sent: %s\n",buf);
-		res = sendFix(sock,buf,0);
-		if ( res <= 0 ) {
-			perror( "send call failed" );
-			pthread_exit(NULL);
-		}
-	}
-}
-
-int main( int argc, char** argv) {
-	int port = 0;
-	if(argc < 2) {
-		printf("Using default port %d\n",DEF_PORT);
-		port = DEF_PORT;
-	} else port = atoi(argv[1]);
-	struct sockaddr_in listenerInfo;
-	listenerInfo.sin_family = AF_INET;
-	listenerInfo.sin_port = htons( port );
-	listenerInfo.sin_addr.s_addr = htonl( INADDR_ANY );
-	int listener = socket(AF_INET, SOCK_STREAM, 0 );
-	if ( listener < 0 ) {
-		perror( "Can't create socket to listen: " );
-		exit(1);
-	}
-	int res = bind(listener, ( struct sockaddr * )&listenerInfo, sizeof( listenerInfo ) );
-	if ( res < 0 ) {
-		perror( "Can't bind socket" );
-		exit( 1 );
-	}
-	// listens for incoming connection
-	res = listen(listener,5);
-	if (res) {
-		perror("Error while listening:");
-		exit(1);
-	}
-	// main loop
-	for(;;) {
-		int client = accept(listener, NULL, NULL );
-		pthread_t thrd;
-		res = pthread_create(&thrd, NULL, clientHandler, (void *)(client));
-		if (res){
-			printf("Error while creating new thread\n");
-		}
-	}
-	return 0;
-}
-
-int readFix(int sock, char* buf, int bufSize, int flags) {
-	// read the "header" - how long our message is in bytes
-	unsigned msgLength = 0;
-	int res = recv( sock, &msgLength, sizeof(unsigned), flags | MSG_WAITALL );
-	if (res <= 0) return res;
-	if(res > bufSize) {
-		printf("Recieved more data, then we can store, exiting\n");
-		exit(1);
-	}
-	// reads the message
-	return recv(sock, buf, msgLength, flags | MSG_WAITALL);
-}
-
-int sendFix(int sock, char* buf, int flags) {
-	//sends number of bytes in message
-	unsigned msgLength = strlen(buf);
-	int res = send(sock, &msgLength, sizeof(unsigned), flags );
-	if (res <= 0)
-		return res;
-	send(sock, buf, msgLength, flags);
-}
-	\end{lstlisting}
+	Исходный код программы tcp\_server:
+	\lstinputlisting[style=crs_cpp]{../listings/tcp_server.c}
 		
-	Исходный код программы writer2:
-	\begin{lstlisting}[style=crs_cpp]
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#define DEF_PORT 8888
-#define DEF_IP "127.0.0.1"
-
-int main( int argc, char** argv) {
-	char* addr;
-	int port;
-	char* readbuf;
-	if(argc <3) {
-		printf("Using default port %d\n",DEF_PORT);
-		port = DEF_PORT;
-	} else port = atoi(argv[2]);
-	if(argc < 2) {
-		printf("Using default addr %s\n",DEF_IP);
-		addr = DEF_IP;
-	} else addr = argv[1];
-	// create socket
-	struct sockaddr_in peer;
-	peer.sin_family = AF_INET;
-	peer.sin_port = htons( port );
-	peer.sin_addr.s_addr = inet_addr( addr );
-	int sock = socket( AF_INET, SOCK_STREAM, 0 );
-	if ( sock < 0 ){
-		perror( "Can't create socket\n" );
-		exit( 1 );
-	}
-	// connect to the server
-	int res = connect( sock, ( struct sockaddr * )&peer, sizeof( peer ) );
-	if (res) {
-		perror( "Can't connect to server:" );
-		exit( 1 );
-	}
-	// main loop
-	char buf[100];
-	for(;;) {
-		printf("Input request (empty to exit)\n");
-		bzero(buf,100);
-		fgets(buf, 100, stdin);
-		buf[strlen(buf)-1] = '\0';
-		if(strlen(buf) == 0) {
-			printf("Bye-bye\n");
-			return 0;
-		}
-		res = sendFix(sock, buf,0);
-		if ( res <= 0 ) {
-			perror( "Error while sending:" );
-			exit( 1 );
-		}
-		bzero(buf,100);
-		res = readFix(sock, buf, 100, 0);
-		if ( res <= 0 ) {
-			perror( "Error while receiving:" );
-			exit(1);
-		}
-		printf("Server's response: %s\n",buf);
-	}
-	return 0;
-}
-
-int readFix(int sock, char* buf, int bufSize, int flags) {
-	// read the "header" - how long is our message in bytes
-	unsigned msgLength = 0;
-	int res = recv( sock, &msgLength, sizeof(unsigned), flags | MSG_WAITALL );
-	if (res <= 0) return res;
-	if(res > bufSize) {
-		printf("Recieved more data, then we can store, exiting\n");
-		exit(1);
-	}
-	// reads the message
-	return recv(sock, buf, msgLength, flags | MSG_WAITALL);
-}
-
-int sendFix(int sock, char* buf, int flags) {
-	// sens number of bytes in message
-	unsigned msgLength = strlen(buf);
-	int res = send(sock, &msgLength, sizeof(unsigned), flags );
-	if (res <= 0)
-		return res;
-	send(sock, buf, msgLength, flags);
-}
-	\end{lstlisting}
+	Исходный код программы tcp\_client:
+	\lstinputlisting[style=crs_cpp]{../listings/tcp_client.c}
 	
 	Для взаимодействия используются TCP сокеты, это значит, что между сервером и клиентом устанавливается логическое соединение, при этом при получении данных из сокета с помощью вызова recv, есть вероятность получить сразу несколько сообщений, или не полностью прочитать сообщение. Поэтому для установления взаимной однозначности между отосланными и принятыми данными используются функции recvFix и sendFix. Принцип их работы следующий: функция sendFix перед посылкой собственно данных посылает «заголовок» - количество байт в посылке. Функция recvFix вначале принимает этот «заголовок», и вторым вызовом recv считывает переданное количество байт. Считать ровно то, количество байт, которое указанно в аргументе функции recv, позволяет флаг \texttt{MSG\_WAITALL}. Если его не использовать и данных в буфере недостаточно, то будет прочитано меньшее количество.
 	
-	Клиент 1:
-	\begin{lstlisting}[style=crs_bash]
-$ ./tcp_client 
-Using default port 8888
-Using default addr 127.0.0.1
-Input request (empty to exit)
-b
-Server's response: b
-Input request (empty to exit)
-c
-Server's response: c
-Input request (empty to exit)
-
-Bye-bye
-	\end{lstlisting}
+	Клиент на первой машине:
+	\lstinputlisting[style=crs_bash]{../listings/tcp_log_same_client}
 	
-	Клиент 2:
-	\begin{lstlisting}[style=crs_bash]
-$ ./tcp_client 
-Using default port 8888
-Using default addr 127.0.0.1
-Input request (empty to exit)
-a
-Server's response: a
-Input request (empty to exit)
-d
-Server's response: d
-Input request (empty to exit)
-
-Bye-bye
-	\end{lstlisting}
+	Клиент на второй машине:
+	\lstinputlisting[style=crs_bash]{../listings/tcp_log_diff_client}
 	
-	Сервер:
-	\begin{lstlisting}[style=crs_bash]
-$ ./tcp_server 
-Using default port 8888
-Some client sent: a
-Some client sent: b
-Some client sent: c
-Some client sent: d
-Can't recv data from client, ending thread
-: Success
-
-Can't recv data from client, ending thread
-: Success
-^C
-	\end{lstlisting}
+	Сервер на первой машине:
+	\lstinputlisting[style=crs_bash]{../listings/tcp_log_server}
 	
-	Реализация подобной функциональности с помощью UDP сокетов:
+	Из результатов работы видно, что сообщения были доставлены, и прочитаны целиком. Все сетевые проблемы в данном случае лежат на плечах TCP. Программисту не нужно думать о перемешивание, потере и дублирование пакетов.\\
+	
+	\subsubsection{UDP}	
+	Протокол UDP не предоставляет подобной надёжности. И в пределах идеальной сети он будет работать безотказно, но даже локальные сети не идеальны. Реализация эхо сервера без обеспечения дополнительной надёжности на прикладном уровне вряд ли будет вполне работоспособной. Поэтому в данной реализации введена некоторая защита:
 	Исходный код программы udp/server.c:
 	\lstinputlisting[style=crs_cpp]{../listings/udp/server.c}
 		
 	Исходный код программы udp/client.c:
 	\lstinputlisting[style=crs_cpp]{../listings/udp/client.c}
 	
-	Для взаимодействия используются UDP сокеты, это значит, что между сервером и клиентом не устанавливается логическое соединение.
+	Заголовок сетевой библиотеки:
+	\lstinputlisting[style=crs_cpp]{../listings/udp/enet.h}
 	
-	Клиент 1:
-	\begin{lstlisting}[style=crs_bash]
-$  ./client
-Insert server addres (default 127.0.0.1)
-
-Insert server port (default 8888)
-
-Socket created
-Received packet from 127.0.0.1:34419
-Connected
-Colour of Server messages 
-Colour of Your messages 
-
-$ HI, can you hear me?
-HI, can you hear me?
-$ 
-Server was inactive for too long
-Socket closed
-	\end{lstlisting}
+	Реализация сетевой библиотеки:
+	\lstinputlisting[style=crs_cpp]{../listings/udp/enet.c}	
 	
-	Клиент 2:
-	\begin{lstlisting}[style=crs_bash]
-$ ./client 
-Insert server addres (default 127.0.0.1)
-
-Insert server port (default 8888)
-
-Socket created
-Received packet from 127.0.0.1:53199
-Connected
-Colour of Server messages 
-Colour of Your messages 
-
-$ Hello, you are great!
-Hello, you are great!
-$ So nice to hear this
-So nice to hear this
-$ quit
-Socket closed
-	\end{lstlisting}
+	Для взаимодействия используются UDP сокеты, это значит, что между сервером и клиентом не устанавливается логическое соединение. Но оно организовано на прикладном уровне: поток аксепта заменён на поток генерации новых сокетов на новых портах и перенаправления дальнейшего общения с данным клиентом. Таким образом основной порт служит лишь точкой входа, реальное общение происходит на отдельных портах, с каждым клиентом индивидуально. Этот подход плох тем, что для каждого клиента используется отдельный случайный порт, что может привести к конфликтам с межсетевыми экранами и корреляции с портами других приложений. 
 	
-	Сервер:
-	\begin{lstlisting}[style=crs_bash]
-$ ./server 
-Main socket: created
-Main socket: binded
-Main socket: waiting
-Main socket: connection accepted
-Main thread: new thread created, id = 0, port = 40753
-Main socket: connection accepted
-Main thread: new thread created, id = 1, port = 42343
-Subthread[0]: client was inactive for too long
-Subthread[0]: client disconnected
-Subthread[1]: client ended session
-Subthread[1]: client disconnected
-quit
-Main socket: down
-recvfrom return value: 0
-Main socket: closed
-Main thread termination phase
-	\end{lstlisting}
+	Клиент на первой машине:
+	\lstinputlisting[style=crs_bash]{../listings/udp/log/same_client}
 	
-	Протокол UDP намного проще, так как не следит за доставкой, дублированием, перемешиванием пакетов. Его использование обоснованно в случаях, когда подобные недостатки не важны, а приоритет имеют скорость передачи и снижение нагрузки (голосовой чат, он-лайн игры, dns запросы). Однако в некоторых случаях надёжность схожая с TCP реализуется на прикладном уровне.
+	Клиент на второй машине:
+	\lstinputlisting[style=crs_bash]{../listings/udp/log/diff_client}
+	
+	Сервер на первой машине:
+	\lstinputlisting[style=crs_bash]{../listings/udp/log/server}
+	
+	Данные результаты были получены не сразу. Политика безопасности сервера была выстроена так, что незнакомые UDP пакеты он отбрасывал.	
+	Протокол UDP намного проще TCP, так как не следит за доставкой, дублированием, перемешиванием пакетов. Его использование обоснованно в случаях, когда подобные недостатки не важны, а приоритет имеют скорость передачи и снижение нагрузки (голосовой чат, он-лайн игры, dns запросы). Однако в некоторых случаях надёжность схожая с TCP реализуется на прикладном уровне(TFTP).
 	
 \section{Вывод}
 	В ОС Unix адресные пространства различных процессов изолированы друг от друга. Для взаимодействия процессов используются специальные средства IPC, включающие в себя сигналы, именованные и неименованные каналы, сообщения, сокеты, семафоры и разделяемую память.
@@ -1069,7 +824,7 @@ Main thread termination phase
 	
 	Сигналы самое простое средство IPC, являются достаточно медленными и ресурсоёмкими, не позволяют передавать произвольные данные, служат главным образом для уведомления, обработки нештатных ситуаций и синхронизации.
 	
-	Именованные и неименованные каналы реализуют запись и чтение по принципу FIFO. Запись и чтение, таким образом, происходит быстро, однако при создании именованного канала затрачивается несколько больше времени. Кроме того, каналы работают в полудуплексном режиме, т.е. передают данные только в одну сторону. Каналы FIFO представляют собой вид IPC, который может использоваться только в пределах одного узла. Хотя FIFO и обладают именами в файловой системе, они могут применяться только в локальных файловых системах
+	Именованные и неименованные каналы реализуют запись и чтение по принципу FIFO. Запись и чтение, таким образом, происходит быстро, однако при создании канала затрачивается несколько больше времени. Кроме того, каналы работают в полудуплексном режиме, т.е. передают данные только в одну сторону. Каналы FIFO представляют собой вид IPC, который может использоваться только в пределах одного узла. Хотя FIFO и обладают именами в файловой системе, они могут применяться только в локальных файловых системах
 
 	Сообщения являются мощным средством межпроцессного обмена данными. Время доставки сообщения сравнимо с временем доставки сигнала, однако сообщение несёт гораздо больше информации, чем сигнал. С помощью сообщений гораздо проще организовать асинхронный обмен данными между процессами, чем с помощью каналов.
 	

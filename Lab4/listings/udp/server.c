@@ -20,19 +20,6 @@ struct client_descriptor
 };
 struct client_descriptor client_d[100];
 pthread_mutex_t lock;
-pthread_mutex_t nock;
-
-struct piece_of_news{
-    int id, theme;
-    char text[5000];
-};
-struct piece_of_news pofn[100];
-
-struct theme{
-    char name[20];
-};
-struct theme themes[100];
-//const char *themes[] = {"Tech ", "Science", "Movies", "Cars"};
 
 void *connection_handler(void *);
 void *accept_handler(void *);
@@ -129,11 +116,15 @@ void *connection_handler(void *the_id){
     struct timeval timeout;
     fd_set readset;
     struct mes_buf mesbuf[100];
+    //struct sockaddr_in me;
+    //socklen_t melen = sizeof(me);
 
     timeout.tv_sec = time_to_wait;
 
     if ((sock=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
     puts(ERR"Subsocket: failed to create"RST);
+    //getsockname(sock, &me, &melen);
+    //printf(TRD"Subthread[%d]: new port is %d"RST"\n", id, ntohs(me.sin_port));
     add_sockdesc(id, sock);
     if(sub_connect(id, sock) == -1)
     puts(ERR"Subsocket: failed to connect"RST);
@@ -190,7 +181,7 @@ AH_RPT:
                 }
                 add_tdescriptor(id, sniffer_thread);
 
-                printf(TRD"Main thread: new thread created, id = %d, port = %d"RST"\n", id, ntohs(new_client.sin_port));
+                printf(TRD"Main thread: new thread created, id = %d, ip = %s, port = %d"RST"\n", id, inet_ntoa(new_client.sin_addr) , ntohs(new_client.sin_port));
             }
         }
     }

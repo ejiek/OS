@@ -1,0 +1,21 @@
+$ ./client 
+Insert server addres (default 127.0.0.1)
+192.168.1.197
+Insert server port (default 8888)
+
+Socket created
+Received packet from 192.168.1.197:59617
+Connected
+Colour of Server messages 
+Colour of Your messages 
+
+$ Hi, I'm another PC
+Hi, I'm another PC
+$ Good for you
+Good for you
+$ Can you say goodbey to me?
+Can you say goodbey to me?
+$ 
+Server ended session
+Socket closed
+

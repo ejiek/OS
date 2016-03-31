@@ -1,0 +1,10 @@
+$  ./server                         
+Using default port 8888
+
+Some client sent: Hello from the same PC
+Some client sent: Hi from sooo different PC
+Can't recv data from client, ending thread
+: Success
+Can't recv data from client, ending thread
+: Success
+^C
