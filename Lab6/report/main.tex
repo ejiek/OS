@@ -1,0 +1,1433 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1,T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{hyperref}
+\usepackage{indentfirst} % включить отступ у первого абзаца
+\usepackage{listings}
+\lstset{inputpath=../listings}
+\usepackage{color}
+\usepackage{here} 
+\usepackage{graphicx}
+\graphicspath{{pics/}}
+
+\usepackage{caption}
+\renewcommand{\lstlistingname}{Листинг}
+
+\usepackage{listings}
+\lstdefinestyle{base_listing}{ %
+extendedchars=\true,
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,           % adds a frame around the code
+tabsize=2,          % sets default tabsize to 2 spaces
+captionpos=b,           % sets the caption-position to bottom
+breaklines=true,        % sets automatic line breaking
+breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)},          % if you want to add a comment within your code
+postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}},
+keepspaces = true
+}
+
+\lstdefinestyle{crs_bash}{
+  style    = {base_listing},
+  language = {bash}
+}
+
+\lstdefinestyle{crs_cpp}{
+  style    = {base_listing},
+  language = {C++}
+}
+
+\usepackage[left=2.5cm, top=2cm, right=2cm, bottom=2cm, nohead]{geometry}
+
+\begin{document}
+\begin{titlepage} % начало титульной страницы
+
+\begin{center} % включить выравнивание по центру
+
+\large Санкт-Петербургский Политехнический Университет Петра Великого\\
+\large Институт компьютерных наук и технологий \\
+\large Кафедра компьютерных систем и программных технологий\\[6cm]
+% название института, затем отступ 4,5см
+
+\huge Операционные системы и среды\\[0.5cm]
+\large Отчет по лабораторной работе №6\\[0.1cm]
+\large Средства межпроцессного взаимодействия в ОС Windows\\[5cm]
+\end{center}
+
+\begin{flushright}
+\begin{minipage}{0.5\textwidth}
+\begin{flushright}
+\textbf{Работу выполнил:}
+
+Петров Владислав
+
+{Группа:} 43501/4\\
+
+
+\textbf{Преподаватель:} 
+
+Душутина Елена Владимировна
+\end{flushright}
+\end{minipage} % конец врезки
+\end{flushright} % конец выравнивания по левому краю
+
+\vfill % заполнить всё доступное ниже пространство
+
+\begin{center}
+
+\large Санкт-Петербург\\
+\large \the\year % вывести дату
+
+\end{center} % закончить выравнивание по центру
+
+\thispagestyle{empty} % не нумеровать страницу
+\end{titlepage} % конец титульной страницы
+
+\vfill % заполнить всё доступное ниже пространство
+
+
+\section{Цель работы}
+	Изучить средства межпроцессного взаимодействия в ОС Windows.
+	
+\section{Программа работы}
+\begin{enumerate}
+\item Неименованные каналы.\\
+1.1. Создать клиент-серверное приложение, позволяющее набираемые символы в терминальном окне командной строки (сервер) отображать их в окно процесса-потомка (клиент).\\
+1.2.Создать эхо-сервер, взаимодействующий с клиентом посредством pipe.
+\item Именованные каналы.\\
+2.1.Программа, обеспечивающая взаимодействие процессов посредством именованных каналов.Реализовать между одним клиентом и сервером обмен данными, вводимыми с консоли на стороне клиента и возвращаемыми сервером обратно до получения команды exit.\\
+2.2. Программа, обеспечивающая взаимодействие процессов посредством именованных каналов – аналогичная программа с эхо-сервером, но с множеством клиентов и принудительной блокировкой обмена до завершения каждой операции. Реализовать между сервером и множеством клиентов обмен данными, вводимыми с консоли на стороне клиента и возвращаемыми сервером обратно до получения команды exit.\\
+2.3. Модифицируем приложение из предыдущего примера (2.2) для сетевого обмена информацией.
+\item Сокеты.\\
+3.1. Программа локального обмена сокетами с использованием потокового протокола с установлением соединения (TCP в стеке TCP/IP).\\
+3.2. Модифицировать программу для локального обмена с множеством клиентов и с доступом к общему ресурсу.\\
+3.3. Сетевая передача данных с помощью сокетов.
+\item  Провести эксперимент с множеством клиентов при сетевом обмене, представить результаты для виртуальной и реальной сетей;
+\item  Проанализировать пример применения сокетов (сетевой обмен «мгновенными» сообщениями). Представить архитектуру приложения, алгоритмы сервера и клиента, схему и диаграмму их взаимодействия. Составить спецификацию функций (имя, назначение, параметры, файлы). Дополнить приложение, предоставив возможность обмениваться информацией клиентам в Linux и Windows. Исходный код в приложении. Настроить функционирование в лабораторной сети. Описать необходимые настройки.
+\item  Привести примеры использования портов завершения. Привести пример приложения с большим количеством клиентов до 1000 (когда порты завершения оправданы), общее количество потоков не более 10.
+\item  Оформить приложение с сокетами в виде службы.
+\item  Реализовать обмен на основе UDP
+\item  Сигналы в Windows\\
+9.1. В качестве примера рассмотрим код из msdn. В нем происходит перехват сигналов CTRL+C, CTRL+BREAK. При этом обработчик смотрит, какой сигнал ему передан, и выводит его название. В качестве звуковой индикации работы приложение вызывает функцию Beep.\\
+9.2. Предложить собственную реализацию обработчика сигнала.
+\item Взаимодействие двух процессов через совместно используемую именованную память, при котором первый процесс записывает данные, а второй считывает их. Создать программу, в которой первый процесс генерирует случайное число и записывает его в буфер, доступный второму процессу, откуда он его и считывает с последующим выводом.
+\item  Предложить собственную реализацию приложения, иллюстрирующую обмен информацией почтовыми слотами. Продемонстрировать возможность локального и удаленного доступа. Выполнить широковещательную передачу данных.
+\end{enumerate}
+
+\section{Ход работы}
+Основная рабочая станция:\begin{lstlisting}
+OS Name:                   Microsoft Windows 10 Pro
+OS Version:                10.0.10586 N/A Build 10586
+...
+Wireless LAN adapter Wi-Fi 2:
+
+   Connection-specific DNS Suffix  . :
+   Link-local IPv6 Address . . . . . : fe80::58c4:2b5b:1f7:4fa7%6
+   IPv4 Address. . . . . . . . . . . : 192.168.1.27
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+	\end{lstlisting}
+	
+Дополнительная рабочая станция:\begin{lstlisting}
+OS Name:                   Microsoft Windows 10 Pro
+OS Version:                10.0.10586 N/A Build 10586
+...
+Ethernet adapter Ethernet:
+
+   Connection-specific DNS Suffix  . :
+   Link-local IPv6 Address . . . . . : fe80::a593:35fa:9f2:9f2c%4
+   IPv4 Address. . . . . . . . . . . : 192.168.1.36
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+	\end{lstlisting}
+Стоит заметить, что дополнительная рабочая станция является виртуальной машиной с прямым доступом в локальную сеть. А программы собирались и часто запускались с помощью Qt 5.6.
+
+\subsection{Неименованные каналы (Pipe)}
+	Посредством pipe-канала можно передавать данные только между двумя процессами. В основе взаимодействия лежит так называемая файловая модель функционирования. Один из процессов создает канал, другой открывает его. После этого оба процесса могут передавать данные через канал в одну или обе стороны, используя для этого функции, предназначенные для работы с файлами, такие как \textbf{ReadFile} и \textbf{WriteFile}.
+	
+	Анонимные каналы (anonymous channels) Windows обеспечивают однонаправленное (полудуплексное) посимвольное межпроцессное взаимодействие. Каждый канал имеет два дескриптора: дескриптор чтения (read handle) и дескриптор записи (write handle).
+	
+	После создания канала необходимо передать клиентскому процессу его дескрипторы (или один из них), что обычно делается с помощью механизма наследования. Для наследования описателя нужно, чтобы процесс-потомок создавался функцией CreateProcess с флагом наследования TRUE.
+	
+	\textbf{Задание} Создать клиент-серверное приложение, позволяющее набираемые символы в терминальном окне командной строки (сервер) отображать их в окно процесса-потомка (клиент).
+В программе-сервере master создается неименованный канал для связи с процессом-потомком, порождается сам процесс-потомок (программа-клиент) slave. На стороне сервера производится запись из консоли в канал. В slave открывается неименованный канал и осуществляется считывание из него в новое окно. Запись/чтение канала производится с помощью стандартных потоков \texttt{std\_in} и \texttt{std\_out}.
+
+	Исходный код программы master:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h>
+#include <stdio.h>
+#include <conio.h>
+#include <string.h>
+#include <iostream>
+using namespace std;
+int main() { // инициализируем необходимые структуры
+	STARTUPINFO si = { sizeof(si) };
+	SECURITY_ATTRIBUTES sa;
+	PROCESS_INFORMATION pi;
+	char buf[1024];
+	char t = '\n';
+	HANDLE newstdread, newstdwrite;//хэндлы потоков для пайпа
+	//инициализируем нужные поля SECURITY_ATTRIBUTES
+	sa.nLength = sizeof(sa);
+	sa.lpSecurityDescriptor = NULL;
+	sa.bInheritHandle = true; //разрешаем наследование дескрипторов
+	//создаем анонимный канал(создаем пайп для stdin)
+	if (!CreatePipe(&newstdread, //указатель на пеpеменную типа dword, котоpая получит //хэндл конца чтения пайпа
+					&newstdwrite, //указатель на пеpеменную типа dword, котоpая получит //хэндл на конец записи пайпа
+					&sa, // указатель на структуру атрибутов без-ти
+					0))//размер буфера, исп-ся по умолч.
+	{
+		cout << "I can't CreatePipe";
+		getch();
+		return 0;
+	}
+	else
+		cout << "\nPipe Created!\n";
+	//выводим на экран дескриптор потока ввода анонимного канала
+	cout << "The read HANDLE of PIPE = " << newstdread << endl;
+	//обнуляем поля STARTUPINFO и задаем нужные значения
+	ZeroMemory(&si, sizeof(STARTUPINFO));
+	si.cb = sizeof(STARTUPINFO);
+	si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+	si.wShowWindow = SW_NORMAL;
+	//подменяем стандартный дескриптор ввода дескриптором ввода канала
+	si.hStdInput = newstdread;
+	si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	si.hStdError = si.hStdOutput;
+	TCHAR czCommandLine[] = L"D:\\Study\\7 семестр\\ОС\\lab6\\progs\\slave_task1\\Debug\\slave_task1.exe";
+	if (!CreateProcess(NULL, czCommandLine, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+		cout << "Error: Can't CreateProcess";
+		getch();
+		CloseHandle(newstdread);
+		CloseHandle(newstdwrite);
+		return 0;
+	}
+	else
+	cout << "\nProcess Created!!!\n";
+	memset(buf, '\0', sizeof(buf));
+	cout << buf;
+	unsigned long bread;
+	cout << "STD INPUT HANDLE = " << GetStdHandle(STD_INPUT_HANDLE) << endl;
+	cout << "STD OUTPUT HANDLE = " << GetStdHandle(STD_OUTPUT_HANDLE) << endl;
+	while (1)
+	{
+		memset(buf, '\0', sizeof(buf));
+		*buf = (char)getch();
+		cout.put(*buf);
+		if (*buf == 13)
+		{
+			*buf = '\n';
+			cout.put(*buf);
+		}
+			WriteFile(newstdwrite, //указатель на пишущих хэндл канала
+					buf, // указатель на буфер
+					1, //кол-во байт данных,записываемых в буфер
+					&bread,// указатель на переменную, хранящую кол-во байт, записанных в буфер
+					NULL);//т.к. 1й аргумент не был открытс флагом FILE_FLAG_OVERLAPPED
+		if (*buf == 27)
+			break;
+	}
+	TerminateProcess(pi.hProcess, 0); // завершение процесса
+	CloseHandle(pi.hThread);
+	CloseHandle(pi.hProcess);
+	CloseHandle(newstdread);
+	CloseHandle(newstdwrite);
+	system("PAUSE");
+	return 0;
+}	
+	\end{lstlisting}
+	
+	
+	Исходный код программы slave:
+	\begin{lstlisting}[style=crs_cpp]
+#include <iostream>
+#include <conio.h>
+#include <stdio.h>
+#include <windows.h>
+using namespace std;
+
+int main()
+{
+	char buf[2];
+	unsigned long avail;
+	cout << "STD INPUT HANDLE = " << GetStdHandle(STD_INPUT_HANDLE) << "\n";
+	cout << "STD OUTPUT HANDLE = " << GetStdHandle(STD_OUTPUT_HANDLE) << "\n";
+	unsigned long bread; //кол-во прочитанных байт
+	while (1){
+		PeekNamedPipe( // получаем данные из анонимного канала
+			GetStdHandle(STD_INPUT_HANDLE), // идентификатор канала Pipe
+			NULL, //адрес буфера для прочитанных данных(NULL -нет данных для чтения)
+			NULL, //размер буфера в байтах, параметр игнорируется, если буфер NULL
+			NULL, //указатель на переменную, которая получает число считанных байт //параметр = NULL, если нет данных для чтения
+			&avail, //адрес переменной, в которую будет записано общее количество //байт данных,доступных в канале для чтения
+			NULL); // адрес переменной, в которую будет записано количество //непрочитанных байт в данном сообщении
+		if (avail)
+		{
+			memset(buf, '\0', sizeof(buf));
+			ReadFile(
+				GetStdHandle(STD_INPUT_HANDLE), //handle канала
+				buf, //указатель на буфер,в который пишем считанные из //канала данные
+				1, //кол-во байтов для чтения
+				&bread, //указатель на переменную (кол-во считанных байт)
+				NULL); // если handle не OVERLAPPED, то равен NULL
+			cout << buf;
+		}
+	}
+	return 0;
+}
+	\end{lstlisting}
+	
+	При запуске "сервера" в командной строке выводится текст "Pipe Created!", затем сервером порождается процесс "slave" в новом окне, после чего любые символы, которые пишем в окне сервера, моментально появляются в окне клиента.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=1]{task1}}
+		\caption{Результат работы}
+		\label{img:task1}
+	\end{figure}
+	
+	\textbf{Задание} Создать эхо-сервер, взаимодействующий с клиентом посредством pipe.
+	
+	В программе используется передача дескрипторов через наследование. По причине того, что анонимный канал является полудуплексным, для организации эхо-сервера необходимо создавать 2 канала (для передачи от клиента-серверу и обратно). При этом ненужные дескрипторы каналов закрываются только на стороне сервера (т.к. клиент наследует 4 дескриптора, а явно мы передаем только 2 дескриптора).
+	
+	Дескрипторы каналов связываются со стандартным вводом и выводом клиентского процесса. Поэтому клиент выводит информацию в поток ошибок (что приведет к выводу в консоль процесса-клиента).
+Клиент передает сообщение, например, вида: «message num 1». Сервер передает данное сообщение обратно. Процессы завершаются после передачи 10 сообщений.
+
+	Исходный код программы сервера:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h>
+#include <stdio.h>
+
+int main(int argc, char* argv[]) { 
+	HANDLE hReadPipeFromServToClient, hWritePipeFromServToClient; 
+	//дескрипторы канала для 
+	//передачи от сервера клиенту 
+	HANDLE hReadPipeFromClientToServ, hWritePipeFromClientToServ; 
+	//дескрипторы канала для 
+	//передачи от сервера клиенту 
+	SECURITY_ATTRIBUTES PipeSA = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE}; 
+	//чтобы сделать 
+	//дескрипторы наследуемыми 
+	//создаем канал для передачи от сервера клиенту, сразу делаем дескрипторы наследуемыми 
+	if(CreatePipe(&hReadPipeFromServToClient,&hWritePipeFromServToClient,&PipeSA,0)==0) { 
+		printf("impossible to create anonymous pipe from serv to client\n"); 
+		getchar();
+		return 1000;
+	} 
+	//создаем канал для передачи от клиента серверу, сразу делаем дескрипторы наследуемыми 
+	if(CreatePipe(&hReadPipeFromClientToServ,&hWritePipeFromClientToServ,&PipeSA,0)==0) { 
+		printf("impossible to create anonymous pipe from client to serv\n"); 
+		getchar();
+		return 1001;
+	} 
+	PROCESS_INFORMATION processInfo_Client;
+	// информация о процессе-клиенте
+	STARTUPINFO startupInfo_Client; 
+	//структура, которая описывает внешний вид основного 
+	//окна и содержит дескрипторы стандартных устройств нового процесса, используем для установки 
+	//процесс-клиент будет иметь те же параметры запуска, что и сервер, за исключением
+	//дескрипторов ввода, вывода и ошибок 
+	GetStartupInfo(&startupInfo_Client);
+	startupInfo_Client.hStdInput = hReadPipeFromServToClient; //устанавливаем поток ввода
+	startupInfo_Client.hStdOutput=hWritePipeFromClientToServ; //установим поток вывода 
+	startupInfo_Client.hStdError=GetStdHandle(STD_ERROR_HANDLE); //установим поток ошибок 
+	startupInfo_Client.dwFlags = STARTF_USESTDHANDLES; //устанавливаем наследование 
+	//создаем процесс клиента
+	TCHAR czCommandLine[] = L"D:\\Study\\7 семестр\\ОС\\lab6\\progs\\slave_task2\\Debug\\slave_task2.exe";
+	CreateProcess(NULL, czCommandLine, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &startupInfo_Client, &processInfo_Client);
+	CloseHandle(processInfo_Client.hThread); 
+	//закрываем дескрипторы созданного процесса и его 
+	//потока
+	CloseHandle(processInfo_Client.hProcess); 
+	//закрываем ненужные дескрипторы каналов, которые не использует сервер
+	CloseHandle(hReadPipeFromServToClient); 
+	CloseHandle(hWritePipeFromClientToServ); 
+#define BUF_SIZE 100 //размер буфера для сообщений 
+	BYTE buf[BUF_SIZE]; //буфер приема/передачи 
+	DWORD readbytes,writebytes; //число прочитанных/переданных байт
+	for(int i=0;i<10;i++) { //читаем данные из канала от клиента 
+		if(!ReadFile(hReadPipeFromClientToServ,buf,BUF_SIZE,&readbytes,NULL)) { 
+			printf("impossible to use readfile\n GetLastError= %d\n",GetLastError());
+			getchar(); 
+			return 10000;
+		} 
+		printf("get from client: \"%s\"\n",buf); 
+		if(!WriteFile(hWritePipeFromServToClient,buf,readbytes,&writebytes,NULL)) { 
+			printf("impossible to use writefile\n GetLastError= %d\n",GetLastError()); 
+			getchar(); 
+			return 10001; 
+		} //пишем данные в канал клиенту
+	} 
+	//закрываем HANDLE каналов 
+	CloseHandle(hReadPipeFromClientToServ);
+	CloseHandle(hWritePipeFromServToClient); 
+	printf("server ended work\n Press any key");
+	getchar();
+	return 0; 
+}
+	\end{lstlisting}
+	
+	
+	Исходный код программы клиента:
+	\begin{lstlisting}[style=crs_cpp]
+#include <stdio.h> 
+#include <Windows.h> 
+
+int main(int argc, char* argv[]) { 
+	char strtosend[100]; //строка для передачи 
+	char getbuf[100]; //буфер приема 
+	int bytestosend; //число передаваемых байт 
+	DWORD bytessended,bytesreaded; //число переданных и принятых байт 
+	for(int i=0;i<10;i++) { 
+		bytestosend=sprintf(strtosend,"message num %d",i+1); 
+		//формирование строки для 
+		//передачи 
+		strtosend[bytestosend]=0; 
+		fprintf(stderr,"client sended: \"%s\"\n",strtosend); 
+		if(!WriteFile(GetStdHandle(STD_OUTPUT_HANDLE),strtosend,bytestosend+1,&bytesreaded,NULL)) { 
+			fprintf(stderr,"Error with writeFile\n Wait 5 sec GetLastError= %d\n",GetLastError());
+			Sleep(5000); 
+			return 1000;
+		} 
+		if (!ReadFile(GetStdHandle(STD_INPUT_HANDLE), getbuf, 100, &bytesreaded, NULL)) { 
+			fprintf(stderr,"Error with readFile\n Wait 5 sec GetLastError= %d\n",GetLastError());
+			Sleep(5000); 
+			return 1001; 
+		} 
+		fprintf(stderr,"Get msg from server: \"%s\"\n",getbuf); 
+	} 
+	fprintf(stderr,"client ended work\n Wait 5 sec"); 
+	Sleep(5000); 
+	return 0; 
+}
+	\end{lstlisting}
+	
+	Результат выполнения программы приведен на рисунке \ref{img:task2}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=1]{task2}}
+		\caption{Результат работы}
+		\label{img:task2}
+	\end{figure}
+	
+\subsection{Именованные каналы}
+	Именованные каналы являются дуплексными, ориентированы на обмен сообщениями и обеспечивают взаимодействие через сеть. Кроме того, один именованный канал может иметь несколько открытых дескрипторов. В сочетании с удобными, ориентированными на выполнение транзакций функциями эти возможности делают именованные каналы пригодными для создания клиент-серверных систем. Обмен данными может быть синхронным и асинхронным.
+	
+	Для создания именованного канала используется функция\\ \textbf{CreateNamedPipe}. При первом вызове функции CreateNamedPipe происходит создание самого именованного канала, а не просто его экземпляра. Закрытие последнего открытого дескриптора экземпляра именованного канала приводит к уничтожению этого экземпляра (обычно существует по одному дескриптору на каждый экземпляр). Уничтожение последнего экземпляра именованного канала приводит к уничтожению самого канала, в результате чего имя канала становится вновь доступным для повторного использования.
+	
+	После создания именованного канала сервер может ожидать подключения клиента, вызывая функцию \textbf{ConnectNamedPipe}.
+	
+	Для подключения клиента к именованному каналу применяется функция \textbf{CreateFile}.
+	
+	С помощью функции \textbf{WaitNamedPipe} процесс может выполнять ожидание момента, когда канал Pipe будет доступен для соединения.
+	
+	\textbf{Задание} Реализовать между одним клиентом и сервером обмен данными, вводимыми с консоли на стороне клиента и возвращаемыми сервером обратно до получения команды exit.
+
+	Программа-сервер (файл Master) создает именованый канал для двунаправленного использования и ожидает подключения программы-клиента (slave).
+	
+	Проверяем, корректно ли произошло подключение, затем входим в цикл получения команд от "клиента" с последующими эхо-ответами. При появлении команды exit со стороны клиента, сервер завершает работу, закрывает канал.
+	
+	Клиент на своей стороне открывает канал, пишет в него и читает эхо-ответ. При вводе exit программа завершается.
+	
+	Исходный код программы master:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h>
+#include <stdio.h>
+#include <conio.h>
+int main()
+{
+	// Флаг успешного создания канала
+	BOOL fConnected;
+	// Идентификатор канала Pipe
+	HANDLE hNamedPipe;
+	// Имя создаваемого канала Pipe
+	LPCWSTR lpszPipeName = L"\\\\.\\pipe\\$MyPipe$";
+	// Буфер для передачи данных через канал
+	char szBuf[512];
+	// Количество байт данных, принятых через канал
+	DWORD cbRead;
+	// Количество байт данных, переданных через канал
+	DWORD cbWritten;
+	printf("Named pipe was creating \n");
+	// Создаем канал Pipe, имеющий имя lpszPipeName
+	hNamedPipe = CreateNamedPipe(
+		lpszPipeName, //имя канала
+		PIPE_ACCESS_DUPLEX, // режим котрытия канала - двунаправленный
+		//параметры режима pipe:
+		PIPE_TYPE_MESSAGE //Данные записываются в канал в виде потока сообщений
+		| PIPE_READMODE_MESSAGE //Данные считываются в виде потока сообщений
+		| PIPE_WAIT,// блокирующий режим
+		PIPE_UNLIMITED_INSTANCES, //неограниченное кол-во "подключений" к каналу
+		512, 512, //кол-во байт входного и вызодного буферов
+		0, //тайм-аут в 50 миллисекунд (по умолчанию)
+		NULL); // дескриптор безопасности по умолчанию
+	// Если возникла ошибка, выводим ее код и
+	// завершаем работу приложения
+	if (hNamedPipe == INVALID_HANDLE_VALUE)
+	{
+		fprintf(stdout, "CreateNamedPipe: Error %ld\n",
+			GetLastError());
+		getch();
+		return 0;
+	}
+	// Выводим сообщение о начале процесса создания канала
+	fprintf(stdout, "Waiting for connect...\n");
+	// Ожидаем соединения со стороны клиента
+	fConnected = ConnectNamedPipe(hNamedPipe, // имя канала
+		NULL); // overlapped=null
+	// При возникновении ошибки выводим ее код
+	if (!fConnected)
+	{
+		switch (GetLastError())
+		{
+		case ERROR_NO_DATA:
+			fprintf(stdout, "ConnectNamedPipe: ERROR_NO_DATA");
+			getch();
+			CloseHandle(hNamedPipe);
+			return 0;
+			break;
+		case ERROR_PIPE_CONNECTED:
+			fprintf(stdout,
+				"ConnectNamedPipe: ERROR_PIPE_CONNECTED");
+			getch();
+			CloseHandle(hNamedPipe);
+			return 0;
+			break;
+		case ERROR_PIPE_LISTENING:
+			fprintf(stdout,
+				"ConnectNamedPipe: ERROR_PIPE_LISTENING");
+			getch();
+			CloseHandle(hNamedPipe);
+			return 0;
+			break;
+		case ERROR_CALL_NOT_IMPLEMENTED:
+			fprintf(stdout,
+				"ConnectNamedPipe: ERROR_CALL_NOT_IMPLEMENTED");
+			getch();
+			CloseHandle(hNamedPipe);
+			return 0;
+			break;
+		default:
+			fprintf(stdout, "ConnectNamedPipe: Error %ld\n",
+				GetLastError());
+			getch();
+			CloseHandle(hNamedPipe);
+			return 0;
+			break;
+		}
+		CloseHandle(hNamedPipe);
+		getch();
+		return 0;
+	} // Выводим сообщение об успешном создании канала
+	fprintf(stdout, "\nConnected. Waiting for command...\n");
+	// Цикл получения команд из канала
+	while (1)
+	{
+		if (ReadFile(hNamedPipe, szBuf, 512, &cbRead, NULL))
+		{
+			// Выводим принятую команду на консоль
+			printf("Received: <%s>\n", szBuf);
+			// Если пришла команда "exit",
+			// завершаем работу приложения
+			if (!strcmp(szBuf, "exit"))
+				break;
+			// отправляем эхо-ответ
+			if (!WriteFile(hNamedPipe, szBuf, strlen(szBuf) + 1, &cbWritten, NULL)) break;
+		}
+		else
+		{
+			getch();
+			break;
+		}
+	}
+	CloseHandle(hNamedPipe);
+	return 0;
+}
+	\end{lstlisting}
+	
+	
+	Исходный код программы slave:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h>
+#include <stdio.h>
+#include <conio.h>
+DWORD main(int argc, char *argv[])
+{ // Идентификатор канала Pipe
+	HANDLE hNamedPipe;
+	// Количество байт, переданных через канал
+	DWORD cbWritten;
+	// Количество байт, принятых через канал
+	DWORD cbRead;
+	// Буфер для передачи данных
+	char szBuf[256];
+	// Буфер для имени канала Pipe
+	LPCWSTR szPipeName = L"\\\\.\\pipe\\$MyPipe$";
+	printf("Named pipe client demo\n");
+	printf("Syntax: pipec [servername]\n");
+	// открываем handle нашего именованого pipe
+	hNamedPipe = CreateFile(
+		szPipeName, // pipe name
+		GENERIC_READ | // read and write access
+		GENERIC_WRITE,
+		0, // no sharing
+		NULL, // default security attributes
+		OPEN_EXISTING, // opens existing pipe
+		0, // default attributes
+		NULL); // no template file
+	// Если возникла ошибка, выводим ее код и
+	// завершаем работу приложения
+	if (hNamedPipe == INVALID_HANDLE_VALUE)
+	{
+		fprintf(stdout, "CreateFile: Error %ld\n",
+			GetLastError());
+		getch();
+		return 0;
+	}
+	// Выводим сообщение о создании канала
+	fprintf(stdout, "\nConnected. Type 'exit' to terminate\n");
+	// Цикл обмена данными с серверным процессом
+	while (1)
+	{ // Выводим приглашение для ввода команды
+		printf("cmd>");
+		// Вводим текстовую строку
+		gets(szBuf);
+		// Передаем введенную строку серверному процессу
+		// в качестве команды
+		if (!WriteFile(hNamedPipe, szBuf, strlen(szBuf) + 1, &cbWritten, NULL)) break;
+		// Получаем эту же команду обратно от сервера
+		if (ReadFile(hNamedPipe, szBuf, 512, &cbRead, NULL))
+			printf("Received back: <%s>\n", szBuf);
+		// В ответ на команду "exit" завершаем цикл
+		// обмена данными с серверным процессом
+		if (!strcmp(szBuf, "exit"))
+			break;
+	}
+	// Закрываем идентификатор канала
+	CloseHandle(hNamedPipe);
+	return 0;
+}
+	\end{lstlisting}
+	
+	Результат выполнения программы приведен на рисунке \ref{img:task3}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task3}}
+		\caption{Результат работы}
+		\label{img:task3}
+	\end{figure}
+	
+	Запускаем в одном окне сервер (на рис. слева). Он выводит сообщения о том, что канал создан и ожидает подключения клиента. Запускаем в другом окне клиента (справа). Затем на стороне сервера мы получаем уведомление о том, что создано новое подключение, теперь мы можем получать сообщения от клиента.
+	
+	Клиент после запуска выводит уведомления о том, что он подключился к серверу и ожидает ввода команд в строке cmd> . Вводимые в командной строке символы он пересылает серверу и сразу выводит возвращенный эхо-ответ от него. Для завершения сеанса обмена следует ввести зарезервированную команду exit на стороне клиента, после ее доставки серверу, он завершает работу.
+	
+	Сервер работает с одним клиентом, поэтому ему не нужно вызывать функции отсоединения клиента (по завершению сервера, клиент тоже завершается).
+	
+	\textbf{Задание} Реализовать между сервером и множеством клиентов обмен данными, вводимыми с консоли на стороне клиента и возвращаемыми сервером обратно до получения команды exit.
+	
+	Сервер, как и ранее, создает все необходимые ресурсы и переходит в состояние ожидания соединений. Именованный канал создается для чтения и записи. Передача происходит сообщениями, функции передачи и приема блокируются до их окончания.
+	
+	Клиент после соединения с сервером начинает чтение сообщений с консоли, пока не встретит слово «exit». По данному слову и клиент и сервер завершают свою работу.
+	
+	Обратить внимание на использование функции WaitNamedPipe, а также на возможность использования количества экземпляров каналов, равного количеству потенциальных клиентов.
+	
+	Исходный код программы master:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h>
+#include <stdio.h>
+#define SIZE_OF_BUF 1000 
+
+int main() { 
+	HANDLE hNamedPipe; // Идентификатор каналаPipe 
+	LPCWSTR lpszPipeName = L"\\\\.\\pipe\\$$MyPipe$$"; // Имя создаваемого канала 	Pipe
+	char buf[SIZE_OF_BUF]; // Буфер для передачи данных через канал
+	DWORD readbytes,writebytes; //число байт прочитанных и переданных 
+	printf("Server is started. Try to create named pipe\n"); // Создаем канал Pipe, имеющий имя	lpszPipeName
+	hNamedPipe = CreateNamedPipe(lpszPipeName, //имя канала
+											PIPE_ACCESS_DUPLEX, //доступ и на чтение и на запись 
+											PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, //передача сообщений (как чтение, так и запись) 
+											5, //максимальное число экземпляров каналов равно 5 (число клиентов) 
+											SIZE_OF_BUF, 
+											SIZE_OF_BUF, 
+											5000,
+											NULL); //размеры выходного и входного буферов канала, 5 секунд - длительность для функции WaitNamedPipe 
+	if(hNamedPipe == INVALID_HANDLE_VALUE) { 
+		fprintf(stdout,"CreateNamedPipe: Error %ld\n",GetLastError());
+		getchar();
+		return 1000;
+	} 
+	printf("Named pipe created successfully\n"); // Выводим сообщение о начале процесса создания канала
+	printf("waiting for connect\n"); // Ожидаем соединения со стороны клиента
+	if(!ConnectNamedPipe(hNamedPipe, NULL)) { // При возникновении ошибки выводим ее код 
+		printf("error with function ConnectNamedPipe\n"); 
+		getchar(); 
+		CloseHandle(hNamedPipe);
+		return 1001; 
+	} // Выводим сообщение об успешном создании канала 
+	fprintf(stdout,"Client connected\n"); // Цикл получения команд через канал
+	while(1) { // Получаем очередную команду через канал Pipe 
+		if(ReadFile(hNamedPipe, buf, SIZE_OF_BUF, &readbytes, NULL)) { // Посылаем эту команду обратно клиентскому // приложению 
+			if(!WriteFile(hNamedPipe, buf, strlen(buf) + 1, &writebytes, NULL)) break; // Выводим принятую команду на консоль 
+			printf("Get client msg: %s\n", buf); // Если пришла команда "exit", // завершаем работу приложения
+			if(!strncmp(buf, "exit",4))
+				break;
+		} else { 
+			fprintf(stdout,"ReadFile: Error %ld\n",GetLastError()); 
+			getchar(); 
+			break; 
+		} 
+	} 
+	CloseHandle(hNamedPipe); 
+	printf("server is ending\n press any key\n"); 
+	getchar();
+	return 0; 
+}
+	\end{lstlisting}
+	
+	
+	Исходный код программы slave:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h>
+#include <stdio.h> 
+#define SIZE_OF_BUF 1000 
+
+DWORD main(int argc, char *argv[]) { 
+	HANDLE hNamedPipe; // Идентификатор канала Pipe 
+	DWORD readbytes,writebytes; // количество байт принятых и переданных в канал
+	char buf[SIZE_OF_BUF]; // Буфер для передачи данных 
+	printf("Client is started\n Try to use WaitNamedPipe\n"); //"ожидаем" пока освободится канал
+	LPCWSTR szPipeName = L"\\\\.\\pipe\\$$MyPipe$$";
+	if (!WaitNamedPipe(szPipeName, NMPWAIT_WAIT_FOREVER)) {
+		printf("pipe wasn't created\n getlasterror = %d", GetLastError()); 
+		getchar();
+		return 1000;
+	} // Создаем канал с процессом-сервером
+	hNamedPipe = CreateFile(szPipeName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL); // Если возникла ошибка, выводим ее код и
+	// завершаем работу приложения 
+	if(hNamedPipe == INVALID_HANDLE_VALUE) {
+		fprintf(stdout,"CreateFile: Error %ld\n",GetLastError()); 
+		getchar(); 
+		return 1001;
+	} // Выводим сообщение о создании канала
+	printf("successfully connected\n input message\n"); // Цикл обмена данными с серверным процессом 
+	while(1) { // Выводим приглашение для ввода команды printf("cmd>"); // Вводим текстовую строку 
+		fgets(buf,SIZE_OF_BUF,stdin); // Передаем введенную строку серверному процессу // в качестве команды
+		if(!WriteFile(hNamedPipe, buf, strlen(buf) + 1, &writebytes, NULL)) { 
+			printf("connection refused\n"); 
+			break;
+		} // Получаем эту же команду обратно от сервера
+		if(ReadFile(hNamedPipe, buf, SIZE_OF_BUF, &readbytes, NULL)) 
+			printf("Received from server: %s\n", buf); // Если произошла ошибка, выводим ее код и // завершаем работу приложения 
+		else { 
+			fprintf(stdout,"ReadFile: Error %ld\n", GetLastError()); 
+			getchar(); 
+			break;
+		} // В ответ на команду "exit" завершаем цикл // обмена данными с серверным процессом
+		if(!strncmp(buf, "exit",4))
+			break;
+	} // Закрываем идентификатор канала 
+	CloseHandle(hNamedPipe); 
+	printf("client is ending\n Press any key\n");
+	getchar(); 
+	return 0;
+}
+	\end{lstlisting}
+	
+	Результат выполнения программы приведен на рисунке \ref{img:task4}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task4}}
+		\caption{Результат работы}
+		\label{img:task4}
+	\end{figure}
+	
+	Для подключения нескольких клиентов сервер был изменен:
+	\begin{lstlisting}[style=crs_cpp]
+DWORD WINAPI threadHandler(LPVOID param){
+	HANDLE hNamedPipe = (HANDLE)param;
+	DWORD readbytes, writebytes; //число байт прочитанных и переданных
+	char buf[SIZE_OF_BUF]; // Буфер для передачи данных через канал
+	while (1)
+	{
+		// Получаем очередную команду через канал Pipe
+		if (ReadFile(hNamedPipe, buf, SIZE_OF_BUF, &readbytes, NULL))
+		{
+			// Посылаем эту команду обратно клиентскому
+			// приложению
+			if (!WriteFile(hNamedPipe, buf, strlen(buf) + 1, &writebytes, NULL))
+				break;
+			// Выводим принятую команду на консоль
+			printf("Get client msg: %s\n", buf);
+			// Если пришла команда "exit",
+			// завершаем работу приложения
+			if (!strncmp(buf, "exit", 4))
+				break;
+		}
+		else
+		{
+			fprintf(stdout, "ReadFile: Error %ld\n", GetLastError());
+			getchar();
+			break;
+		}
+	}
+	CloseHandle(hNamedPipe);
+	ExitThread(0);
+}
+//.......................
+//main:
+	while (1){
+		hNamedPipe = CreateNamedPipe(
+			lpszPipeName, //имя канала
+			PIPE_ACCESS_DUPLEX, //доступ и на чтение и на запись
+			PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, //передача сообщений (как чтение,
+			//так и запись)
+			5, //максимальное число экземпляров каналов равно 5 (число клиентов)
+			SIZE_OF_BUF, SIZE_OF_BUF, 5000, NULL); //размеры выходного и входного буферов канала, 5
+		//секунд - длительность для функции WaitNamedPipe
+		if (hNamedPipe == INVALID_HANDLE_VALUE) // Если возникла ошибка, выводим ее код и завершаем
+			//работу приложения
+		{
+			fprintf(stdout, "CreateNamedPipe: Error %ld\n", GetLastError());
+			getchar();
+			return 1000;
+		}
+		printf("Named pipe created successfully\n");
+		// Выводим сообщение о начале процесса создания канала
+		printf("waiting for connect\n");
+		// Ожидаем соединения со стороны клиента
+
+		if (!ConnectNamedPipe(hNamedPipe, NULL))
+		{
+			// При возникновении ошибки выводим ее код
+			printf("error with function ConnectNamedPipe\n");
+			getchar();
+			CloseHandle(hNamedPipe);
+			return 1001;
+		}
+		// Выводим сообщение об успешном создании канала
+		fprintf(stdout, "Client connected\n");
+		t = CreateThread(NULL, 0, threadHandler, (LPVOID)hNamedPipe, 0, NULL);
+		CloseHandle(t);
+	}
+	\end{lstlisting}
+	
+	Результат выполнения программы приведен на рисунке \ref{img:task4_2}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task4_2}}
+		\caption{Результат работы}
+		\label{img:task4_2}
+	\end{figure}
+	
+	Именованные каналы позволяют осуществлять обмен между процессами, выполняющимися на разных компьютерах в сети. Для этого необходимо выполнить определенный ряд условий и настроек. Но сетевые именованные каналы не являются промышленным стандартом и используются в этом качестве скорее как исключение. В ОС семейства Windows это возможно, в отличие, например, от Unix-подобных систем, где обмен данными осуществляется через ядро.
+	
+	Для совместной работы компьютеры нужно подсоединить к одной домашней группе. Так же необходимо установить поле DACL (Discretionary Access Control List) защиты объекта в NULL (разрешение всем пользователям и группам доступа к объекту). Параметры защиты именованного канала задаются с помощью структуры SECURITYATTRIBUTES, которая указывается последним параметром в функции CreateNamedPipe.
+	
+	Изменения в master для работы по сети:
+	\begin{lstlisting}[style=crs_cpp]
+	// Создание SECURITY_ATTRIBUTES и SECURITY_DESCRIPTOR объектов 
+	SECURITY_ATTRIBUTES sa; 
+	SECURITY_DESCRIPTOR sd;
+	// Инициализация SECURITY_DESCRIPTOR значениями по-умолчанию 
+	if (InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION) == 0) {
+		printf("InitializeSecurityDescriptor failed with error %d\n", GetLastError());
+		return 50000; 
+	}
+	// Установка поля DACL в SECURITY_DESCRIPTOR в NULL
+	if (SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE) == 0) {
+		printf("SetSecurityDescriptorDacl failed with error %d\n", GetLastError()); 
+		return 50001;
+	} // Установка SECURITY_DESCRIPTOR в структуре SECURITY_ATTRIBUTES
+	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa.lpSecurityDescriptor = &sd; 
+	sa.bInheritHandle = FALSE; //запрещение наследования
+	hNamedPipe = CreateNamedPipe( lpszPipeName, //имя канала
+								PIPE_ACCESS_DUPLEX, //доступ и на чтение и на запись 
+								PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, //передача сообщений (как чтение, так и запись) 
+								5, //максимальное число экземпляров каналов равно 5 (число клиентов)
+								SIZE_OF_BUF, 
+								SIZE_OF_BUF, 
+								5000, 
+								&sa); //размеры выходного и входного буферов канала, 5 секунд - длительность для функции WaitNamedPipe
+	\end{lstlisting}
+	
+	Изменения в slave для работы по сети:
+	\begin{lstlisting}[style=crs_cpp]
+//адрес сервера и имя канала 
+	LPCWSTR szPipeName = L"\\\\192.168.0.178\\pipe\\$$MyPipe$$";
+	//"ожидаем" пока освободится канал 
+	if (!WaitNamedPipe(szPipeName, NMPWAIT_WAIT_FOREVER)) {
+		printf("pipe wasn't created\n getlasterror = %d", GetLastError()); 
+		getchar(); 
+		return 1000; 
+	} // Создаем канал с процессом-сервером
+	\end{lstlisting}
+	
+	Программы были протестированы в локальной сети. Программы master и slave запускались на разных машинах с ОС Windows 10. Компьютеры были объединены в общую домашнюю группу.
+	
+	Вывод программы master приведен на рисунке \ref{img:task5m}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task5m}}
+		\caption{Результат работы master}
+		\label{img:task5m}
+	\end{figure}
+	
+	Вывод программы slave приведен на рисунке \ref{img:task5s}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task5s}}
+		\caption{Результат работы slave}
+		\label{img:task5s}
+	\end{figure}
+	
+\subsection{Сокеты}
+	Возможность взаимодействия с другими системами обеспечивается в Windows поддержкой сокетов (sockets) Windows Sockets — совместимого и почти точного аналога сокетов Berkeley Sockets, де-факто играющих роль промышленного стандарта.
+	
+	Winsock API поддерживается библиотекой DLL (WS232.DLL), для получения доступа к которой следует подключить к программе библиотеку WS232.LIB. Эту DLL следует инициализировать с помощью нестандартной, специфической для Winsock функции WSAStartup, которая должна быть первой из функций Winsock, вызываемых программой. Когда необходимость в использовании функциональных возможностей Winsock отпадает, следует вызывать функцию WSACleanup.
+	
+	После инициализации библиотеки сокетов можно использовать стандартные функции работы с сокетами.
+	
+	Взаимодействие в сети осуществляется между клиентом и сервером. Клиент посылает серверу некоторый запрос. Сервер обрабатывает запрос и шлет ответ. Сам по себе сокет – это оконечная точка соединения, которая идентифицируется 4 значениями: IP адрес отправителя, порт отправителя, IP адрес получателя, порт получателя. Порт – идентификатор процесса в ОС с точки зрения сетевого взаимодействия. Порт напрямую связан с протоколом. Например, в ОС могут быть два процесса с одинаковым номером порта, но использующие при этом разные протоколы.
+	
+	Программа локального обмена сокетами с использованием потокового протокола с установлением соединения (TCP в стеке TCP/IP). Для потоковых протоколов (к которым относится протокол TCP в стеке TCP/IP) необходимо применять средства, позволяющие определить границы сообщений в передаваемых данных, так как данный вид протоколов имеет дело с доставкой только потока байт (при этом гарантируется порядок доставки).
+	
+	Исходный код программы master:
+	\begin{lstlisting}[style=crs_cpp]
+int main(void) {
+	//используется для инициализации библиотеки сокетов 
+	WSADATA WSStartData; //Инициализация WinSock и проверка его запуска 
+	if (WSAStartup(MAKEWORD(2, 0), &WSStartData) != 0) { 
+		printf("WSAStartup failed with error: %d\n", GetLastError());
+		return 100;
+	} //создание сокета 
+	SOCKET server_socket; //по умолчанию используется протокол tcp 
+	printf("Server is started.\nTry to create socket -----------------");
+	if((server_socket = socket( AF_INET, SOCK_STREAM, 0 )) ==INVALID_SOCKET) { 
+		printf("error with creation socket. GetLasterror= %d\n",GetLastError()); 
+		return 1000;
+	}
+	printf("CHECK\n"); //Привязывание сокета конкретному IP и номеру порта
+	struct sockaddr_in sin; sin.sin_addr.s_addr=inet_addr("127.0.0.1"); // используем локальную машину 
+	sin.sin_port=htons(7500); // может быть любым кроме зарезервированных
+	sin.sin_family=AF_INET; printf("Try to bind socket -------------------"); 
+	if ( bind( server_socket, (struct sockaddr *)&sin, sizeof(sin) ) !=0 ) { 
+		printf("error with bind socket. GetLasterror= %d\n",GetLastError());
+		return 1001;
+	} 
+	printf("CHECK\n"); //делаем сокет прослушиваемым
+	printf("Try to set socket listening ----------");
+	if(listen(server_socket,5 )!=0) { 
+		printf("error with listen socket. GetLasterror= %d\n",GetLastError());
+		return 1002; 
+	} 
+	printf("CHECK\n"); 
+	printf("Server starts listening\n"); //Ждем клиента. Создаем пустую структуру, которая будет содержать параметры сокета, инициирующего соединение 
+	struct sockaddr_in from; 
+	int fromlen=sizeof(from); // начинаем "слушать" входящие запросы на подключение
+	SOCKET client_socket=accept(server_socket,(struct sockaddr*)&from,&fromlen); 
+	if(client_socket==INVALID_SOCKET) { 
+		printf("error with accept socket. GetLasterror= %d\n",GetLastError()); 
+		return 1003;
+	} 
+	printf("get client with IP= %s, port = %d\n",inet_ntoa(from.sin_addr),ntohs(from.sin_port));
+	char buf[SIZE_OF_BUF]; //буфер приема и передачи сообщения 
+	int readbytes; //число прочитанных байт 
+	while(1) {
+		if((readbytes=recvLine(client_socket,buf,SIZE_OF_BUF))==0) {
+			printf("Connection refused\n"); 
+			break;
+		} 
+		else if(readbytes==-1) { 
+			printf("buf is small\n");
+			return 2000; 
+		} 
+		printf("get msg from client \"%s\" with size= %d\n",buf,readbytes);
+		sendLine(client_socket,buf); //sendn(client_socket,buf,readbytes,0); //шлем сообщение обратно клиенту
+		if (strncmp(buf, "exit", 4) == 0) break;
+	} 
+	closesocket(client_socket); 
+	closesocket(server_socket);
+	return 0; 
+}
+	\end{lstlisting}	
+	
+	Исходный код программы slave:
+	\begin{lstlisting}[style=crs_cpp]
+int main(void) { //используется для инициализации библиотеки сокетов 
+	WSADATA WSStartData; //Инициализация WinSock и проверка его запуска 
+	if (WSAStartup(MAKEWORD(2, 0), &WSStartData) != 0) { 
+		printf("WSAStartup failed with error: %d\n", GetLastError()); 
+		return 100; 
+	} 
+	int er_code=0; // инициализация клиентского сокета
+	printf("Client is started.\nTry to create socket\n"); 
+	int client_socket = socket( AF_INET, SOCK_STREAM, 0 );
+	printf("socket created successfully\n"); 
+	struct sockaddr_in sin; 
+	sin.sin_addr.s_addr=inet_addr("127.0.0.1");
+	sin.sin_port=htons(7500); 
+	sin.sin_family=AF_INET; // установливаем TCP-соединение
+	printf("try to connect to server\n"); 
+	if(connect(client_socket, (struct sockaddr *) &sin,sizeof(sin))!=0) { 
+		printf("connect failed with error: %d\n", er_code);
+		return SOCKET_ERROR;
+	}
+	printf("Client connected sucessfully\nEnter msg to send\n---------------------\n");
+	char buf[SIZE_OF_BUF]; //буфер для приема и передачи сообщений 
+	while(1) { 
+		fgets(buf,SIZE_OF_BUF,stdin);
+		printf("client sended msg: %s",buf);
+		sendLine(client_socket,buf); 
+		recvLine(client_socket,buf,SIZE_OF_BUF);
+		printf("get msg from serv: \"%s\"\n**********************\n",buf); 
+	} // заканчиваем работу с сокетом клиента 
+	closesocket(client_socket);
+	return 0;
+}
+	\end{lstlisting}
+	
+	Результат выполнения программы приведен на рисунке \ref{img:task6}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task6}}
+		\caption{Результат работы}
+		\label{img:task6}
+	\end{figure}
+	
+	Для поддержки подключения нескольких клиентов код сервера был немного изменен:
+	\begin{lstlisting}[style=crs_cpp]
+DWORD WINAPI threadHandler(LPVOID param){
+	SOCKET client_socket = (SOCKET)param;
+	if (client_socket == INVALID_SOCKET) {
+		printf("error with accept socket. GetLasterror= %d\n", GetLastError());
+		return 1003;
+	}
+	char buf[SIZE_OF_BUF]; //буфер приема и передачи сообщения 
+	int readbytes; //число прочитанных байт 
+	while (1) {
+		if ((readbytes = recvLine(client_socket, buf, SIZE_OF_BUF)) == 0) {
+			printf("Connection refused\n");
+			break;
+		}
+		else if (readbytes == -1) {
+			printf("buf is small\n");
+			return 2000;
+		}
+		printf("get msg from client \"%s\" with size= %d\n", buf, readbytes);
+		sendLine(client_socket, buf); //sendn(client_socket,buf,readbytes,0); //шлем сообщение обратно клиенту
+		if (strncmp(buf, "exit", 4) == 0) break;
+	}
+	closesocket(client_socket);
+	return 0;
+}
+//............
+// main:
+	while (SOCKET client_socket = accept(server_socket, (struct sockaddr*)&from, &fromlen)){
+		HANDLE t;
+		t = CreateThread(NULL, 0, threadHandler, (LPVOID)client_socket, 0, NULL);
+	}
+	closesocket(server_socket);
+	\end{lstlisting}
+	
+	Результат выполнения программы приведен на рисунке \ref{img:task6_2}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task6_2}}
+		\caption{Результат работы}
+		\label{img:task6_2}
+	\end{figure}
+	
+	С помощью сокетов часто реализовывают сетевые приложения. Для этого необходимо внести незначительные изменения в код сервера и клиента: слушающий сокет сервера необходимо привязывать к адресу \texttt{INADDR\_ANY}, чтобы он мог принимать соединения с любых адресов; клиенту необходимо указать IP адрес компьютера, на котором запущен клиент.
+	
+	Результат выполнения программы приведен на рисунке \ref{img:task6_3}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.5]{task6_3}}
+		\caption{Сетевая передача данных с помощью сокетов}
+		\label{img:task6_3}
+	\end{figure}
+	
+	Правая консоль --– отображает информацию, выводимую утилитой netstat. Прямоугольником выделена строчка, соответствующая слушающему сокету сервера.
+	
+	Более подробное ознакомление с сокетами было проведено на курсе компьютерных сетей.
+	
+\subsection{Сигналы в Windows}
+	Данное средство IPC в Windows не поддерживается. Однако, например, консольному приложению можно посылать сигналы CTRL+C и CTRL+BREAK. Система может посылать приложению сигналы: \texttt{CTRL\_CLOSE\_EVENT,\\ CTRL\_LOGOFF\_EVENT и CTRL\_SHUTDOWN\_EVENT}, когда пользователь закрывает консоль, выходит из системы, или когда система завершается. По получению данных сигналов процесс может произвести корректное завершение.
+	
+	С помощью функции SetConsoleCtrlHandler можно установить обработчик на данные сигналы, но отправить сигнал другому приложению мы не можем. 
+	
+	Зарегистрированный обработчик должен проверять тип сигнала на возможность его обработки. Обработчики сигналов объединены в список. Когда приходит сигнал, вызывается последний зарегистрированный обработчик (при этом запускается отдельный поток). Если этот обработчик возвращает FALSE (он не обрабатывает этот сигнал), то вызывается следующий. Если все обработчики вернули FALSE, вызовется обработчик по-умолчанию, который по-умолчанию завершает процесс.
+	
+	В качестве примера рассмотрим код из msdn. В нем происходит перехват сигналов CTRL+C, CTRL+BREAK. При этом обработчик смотрит, какой сигнал ему передан, и выводит его название. В качестве звуковой индикации работы приложение вызывает функцию Beep. Данная функция воспроизводит звуковой сигнал через динамик консоли с разной частотой и длительностью, задаваемыми ей через параметры.
+	
+	В функции main регистрируется обработчик сигналов, затем главный поток работает в бесконечном цикле.
+	
+	Искодный код:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h> 
+#include <stdio.h> 
+
+BOOL CtrlHandler( DWORD fdwCtrlType ) { 
+	switch( fdwCtrlType )  { 
+		// Handle the CTRL-C signal.
+	case CTRL_C_EVENT: 
+		printf( "Ctrl-C event\n\n" ); 
+		Beep( 750, 300 ); 
+		return( TRUE ); //CTRL-CLOSE: confirm that the user wants to exit.
+	case CTRL_CLOSE_EVENT: 
+		Beep( 600, 200 ); 
+		printf( "Ctrl-Close event\n\n" );
+		return(TRUE); // Pass other signals to the next handler. 
+	case CTRL_BREAK_EVENT:
+		Beep( 900, 200 );
+		printf( "Ctrl-Break event\n\n" );
+		return FALSE;
+	case CTRL_LOGOFF_EVENT: 
+		Beep( 1000, 200 );
+		printf( "Ctrl-Logoff event\n\n" );
+		return FALSE;
+	case CTRL_SHUTDOWN_EVENT:
+		Beep( 750, 500 ); 
+		printf( "Ctrl-Shutdown event\n\n" ); 
+		return FALSE; 
+	default:
+		return FALSE; 
+	}
+} 
+
+int main( void ) {
+	if( SetConsoleCtrlHandler( (PHANDLER_ROUTINE) CtrlHandler, TRUE ) ) {
+		printf( "\nThe Control Handler is installed.\n" ); 
+		printf( "\n -- Now try pressing Ctrl+C or Ctrl+Break, or" ); 
+		printf( "\n try logging off or closing the console...\n" ); 
+		printf( "\n(...waiting in a loop for events...)\n\n" ); 
+		while( 1 ){ } 
+	} else { 
+		printf( "\nERROR: Could not set control handler");
+		return 1; 
+	} 
+	return 0; 
+}
+	\end{lstlisting}
+	
+	Результат выполнения программы приведен на рисунке \ref{img:task7}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task7}}
+		\caption{Результат работы}
+		\label{img:task7}
+	\end{figure}
+	
+\subsection{Разделяемая память}
+	Потоки одного процесса могут разделять общую память этого процесса. У каждого процесса – свое изолированное адресное пространство. Кроме рассмотренных выше средств передачи информации между процессами или потоками разных процессов, одно из наиболее эффективных – использование общей памяти, доступ к которой обеспечивается со стороны каждого процесса. ОС Windows поддерживает такое средство, как именованная, совместно используемая память.
+Приведем системные функции, которые позволяют запрограммировать такое взаимодействие.
+	
+	Первый участвующий в обмене информацией процесс создает объект "проекция файла" при помощи вызова функции CreateFileMapping(). Используя флажок \texttt{PAGE\_READWRITE}, задается доступ по чтению и записи в память через представление данных файла в адресном пространстве процесса. Процесс затем использует дескриптор объекта "проекция файла", возвращаемый функцией CreateFileMapping(), при вызове функции MapViewOfFile(). Эта функция создает представление файла в адресном пространстве процесса и возвращает указатель на представление данных файла для их дальнейшего использования.
+	
+	Другой процесс может получить доступ к тем же данным при помощи вызова функции OpenFileMapping() с тем же самым именем, что и первый процесс, а затем использовать функцию MapViewOfFile(), чтобы получить свой указатель на представление данных файла.
+	
+	Для записи данных в память используется функция CopyMemory(), первый аргумент которой – возвращаемый функцией MapViewOfFile() указатель, а следующие – характеризуют записываемые данные.
+	
+	Когда процессу больше не нужен доступ к объекту "проекция файла в память", он должен вызвать функцию CloseHandle() для дальнейшего освобождения ресурса. При условии, что все дескрипторы закрыты (не осталось процессов, использующих этот ресурс), система может освободить секцию файла подкачки, используемого объектом.
+	
+	\textbf{Задание} Создать программу, в которой первый процесс генерирует случайное число и записывает его в буфер, доступный второму процессу, откуда он его и считывает с последующим выводом.
+	
+	Исходный код первой:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h>
+#include <stdio.h>
+#include <conio.h>
+#define BUF_SIZE 256
+TCHAR szName[] = TEXT("MyFileMappingObject");
+TCHAR szMsg[] = TEXT("Message from first process");
+HANDLE WINAPI mutex;
+void main()
+{
+	HANDLE hMapFile;
+	LPCTSTR pBuf;
+	mutex = CreateMutex(NULL, false, TEXT("SyncMutex"));
+	// create a memory, wicth two proccess will be working
+	hMapFile = CreateFileMapping(
+		INVALID_HANDLE_VALUE, // использование файла подкачки
+		NULL, // защита по умолчанию
+		PAGE_READWRITE, // доступ к чтению/записи
+		0, // макс. размер объекта
+		BUF_SIZE, // размер буфера
+		szName); // имя отраженного в памяти объекта
+	if (hMapFile == NULL || hMapFile == INVALID_HANDLE_VALUE)
+	{
+		printf("Не может создать отраженный в памяти объект (%d).\n",
+			GetLastError());
+		return;
+	}
+	pBuf = (LPTSTR)MapViewOfFile(hMapFile, //дескриптор проецируемого в памяти объекта
+		FILE_MAP_ALL_ACCESS, // разрешение чтения/записи(режим доступа)
+		0, //Старшее слово смещения файла, где начинается отображение
+		0, //Младшее слово смещения файла, где начинается отображение
+		BUF_SIZE); //Число отображаемых байтов файла
+	if (pBuf == NULL)
+	{
+		printf("Представление проецированного файла невозможно (%d).\n",
+			GetLastError());
+		return;
+	}
+	int i = 0;
+	while (true)
+	{
+		i = rand();
+		itoa(i, (char *)szMsg, 10);
+		WaitForSingleObject(mutex, INFINITE);
+		CopyMemory((PVOID)pBuf, szMsg, sizeof(szMsg));
+		printf("write message: %s\n", (char *)pBuf);
+		//Sleep(1000); //необходимо только для отладки - для удобства представления и анализа //результатов
+		ReleaseMutex(mutex);
+	}
+	// освобождение памяти и закрытие описателя handle
+	UnmapViewOfFile(pBuf);
+	CloseHandle(hMapFile);
+	CloseHandle(mutex);
+}
+	\end{lstlisting}	
+	
+	Исходный код второй программы:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h>
+#include <stdio.h>
+#include <conio.h>
+#define BUF_SIZE 256
+#define TIME 15 // number of reading operation in this process
+TCHAR szName[] = TEXT("MyFileMappingObject");
+HANDLE WINAPI mutex;
+void main()
+{
+	HANDLE hMapFile;
+	LPCTSTR pBuf;
+	mutex = OpenMutex(
+		MUTEX_ALL_ACCESS, // request full access
+		FALSE, // handle not inheritable
+		TEXT("SyncMutex")); // object name
+	if (mutex == NULL)
+		printf("OpenMutex error: %d\n", GetLastError());
+	else printf("OpenMutex successfully opened the mutex.\n");
+	hMapFile = OpenFileMapping(
+		FILE_MAP_ALL_ACCESS, // доступ к чтению/записи
+		FALSE, // имя не наследуется
+		szName); // имя "проецируемого " объекта
+	if (hMapFile == NULL)
+	{
+		printf("Невозможно открыть объект проекция файла (%d).\n", GetLastError());
+		return;
+	}
+	pBuf = (LPTSTR)MapViewOfFile(hMapFile, // дескриптор "проецируемого" объекта
+		FILE_MAP_ALL_ACCESS, // разрешение чтения/записи
+		0,
+		0,
+		BUF_SIZE);
+	if (pBuf == NULL)
+	{
+		printf("Представление проецированного файла (%d) невозможно .\n", GetLastError());
+		return;
+	}
+	for (int i = 0; i<TIME; i++)
+	{
+		WaitForSingleObject(mutex, INFINITE);
+		printf("read message: %s\n", (char *)pBuf);
+		ReleaseMutex(mutex);
+	}
+	UnmapViewOfFile(pBuf);
+	CloseHandle(hMapFile);
+}
+	\end{lstlisting}
+	
+	Результат выполнения программы приведен на рисунке \ref{img:task8}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task8}}
+		\caption{Результат работы}
+		\label{img:task8}
+	\end{figure}
+	
+	Для организации синхронизации доступа к памяти в данном примере рассматривается использование мьютексов. В первом процессе создается именованный мьютекс, который "защищает" критические участки кода, в данном случае - запись в общую разделяемую память.
+	
+	Записываемая в буфер информация - это случайное число, которое генерируется функцией rand()перед каждой записью.
+	
+	Второй процесс открывает ранее созданный и именованный первым процессом мьютекс.
+	
+\subsection{Почтовые слоты}
+	MailSlot – механизм синхронизации, иначе называемый «почтовый ящик». Каждый слот реализуется как псевдофайл в оперативной памяти и содержит некоторое количество записей («сообщений»), которые могут быть прочтены всеми компьютерами в сетевом домене. Общий размер данных не дможет превышать 64K. В отличие от дисковых файлов, файлы MailSlot временные. Когда все указатели на MailSlot закрываются, MailSlot и все данные, которые он содержит, удаляются. Для обмена посредством MailSlot создается клиент-серверное приложение. MailSlot сервер – является процессом, который создает и владеет MailSlot. При создании сервер получает указатель, используемый затем при чтении или записи данных им самим или другим процессом, получившим указатель на MailSlot. Создать слот можно только локально, а получать доступ (обращаться) и локально и удалённо.
+	
+	Для демонстрации работы с почтовыми слотами были написаны программы сервера и клиента.	Исходный сервера:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h>
+#include <stdio.h>
+#include <conio.h>
+
+int main() {
+	// Код возврата из функций
+	BOOL   fReturnCode;
+	// Размер сообщения в байтах
+	DWORD  cbMessages;
+	// Количество сообщений в канале Mailslot
+	DWORD  cbMsgNumber;
+	// Идентификатор канала Mailslot
+	HANDLE hMailslot;
+	// Имя создаваемого канала Mailslot
+	LPCWSTR  lpszMailslotName = L"\\\\.\\mailslot\\$Channel$";
+	// Буфер для передачи данных через канал
+	char   szBuf[512];
+	// Количество байт данных, принятых через канал
+	DWORD  cbRead;
+	
+	// Создаем канал Mailslot, имеющий имя lpszMailslotName
+	hMailslot = CreateMailslot(
+		lpszMailslotName, 0,
+		MAILSLOT_WAIT_FOREVER, NULL);
+
+	// Если возникла ошибка, выводим ее код и зваершаем
+	// работу приложения
+	if (hMailslot == INVALID_HANDLE_VALUE)
+	{
+		fprintf(stdout, "CreateMailslot: Error %ld\n",
+			GetLastError());
+		getch();
+		return 0;
+	}
+
+	// Выводим сообщение о создании канала
+	fprintf(stdout, "Mailslot created\n");
+
+	// Цикл получения команд через канал
+	while (1)
+	{
+		// Определяем состояние канала Mailslot
+		fReturnCode = GetMailslotInfo(
+			hMailslot, NULL, &cbMessages,
+			&cbMsgNumber, NULL);
+
+		if (!fReturnCode)
+		{
+			fprintf(stdout, "GetMailslotInfo: Error %ld\n",
+				GetLastError());
+			getch();
+			break;
+		}
+
+		// Если в канале есть Mailslot сообщения,
+		// читаем первое из них и выводим на экран
+		if (cbMsgNumber != 0)
+		{
+			if (ReadFile(hMailslot, szBuf, 512, &cbRead, NULL))
+			{
+				// Выводим принятую строку на консоль 
+				printf("Received: <%s>\n", szBuf);
+
+				// Если пришла команда "exit", 
+				// завершаем работу приложения
+				if (!strcmp(szBuf, "exit"))
+					break;
+			}
+			else
+			{
+				fprintf(stdout, "ReadFile: Error %ld\n",
+					GetLastError());
+				getch();
+				break;
+			}
+		}
+
+		// Выполняем задержку на  500 миллисекунд
+		Sleep(500);
+	}
+
+	// Перед завершением приложения закрываем
+	// идентификатор канала Mailslot
+	CloseHandle(hMailslot);
+	return 0;
+}
+	\end{lstlisting}	
+	
+	Исходный код клиента:
+	\begin{lstlisting}[style=crs_cpp]
+#include <windows.h>
+#include <stdio.h>
+#include <conio.h>
+
+DWORD main(int argc, char *argv[])
+{
+	// Идентификатор канала Mailslot
+	HANDLE hMailslot;
+	// Буфер для имени канала Mailslot
+	LPCWSTR   szMailslotName = L"\\\\.\\mailslot\\$Channel$";
+	// Буфер для передачи данных через канал
+	char   szBuf[512];
+	// Количество байт, переданных через канал
+	DWORD  cbWritten;
+	// Создаем канал с процессом MSLOTS
+	hMailslot = CreateFile(
+		szMailslotName, GENERIC_WRITE,
+		FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+
+	// Если возникла ошибка, выводим ее код и 
+	// завершаем работу приложения
+	if (hMailslot == INVALID_HANDLE_VALUE)
+	{
+		fprintf(stdout, "CreateFile: Error %ld\n",
+			GetLastError());
+		getch();
+		return 0;
+	}
+
+	// Выводим сообщение о создании канала
+	fprintf(stdout, "\nConnected. Type 'exit' to terminate\n");
+
+	// Цикл посылки команд через канал
+	while (1)
+	{
+		// Выводим приглашение для ввода команды
+		printf("cmd>");
+
+		// Вводим текстовую строку
+		gets(szBuf);
+
+		// Передаем введенную строку серверному процессу
+		// в качестве команды
+		if (!WriteFile(hMailslot, szBuf, strlen(szBuf) + 1,
+			&cbWritten, NULL))
+			break;
+
+		// В ответ на команду "exit" завершаем цикл
+		// обмена данными с серверным процессом
+		if (!strcmp(szBuf, "exit"))
+			break;
+	}
+
+	// Закрываем идентификатор канала
+	CloseHandle(hMailslot);
+	return 0;
+}
+	\end{lstlisting}
+	
+	Результат выполнения программы приведен на рисунке \ref{img:task9}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task9}}
+		\caption{Результат работы}
+		\label{img:task9}
+	\end{figure}
+	
+	Используя почтовые слоты можно передавать данные между компьютерами в локальной сети. При создании почтовых слотов с одинаковым именем на нескольких компьютерах домена возможна широковещательная рассылка сообщений клиентов. Один клиентский процесс может посылать сообщения сразу всем этим серверным процессам.
+
+\section{Вывод}
+	В ОС Windows реализовано несколько средств межпроцессного взаимодействия. Некоторые из них совпадают с IPC в UNIX: неименованные и именованные каналы, сокеты, разделяемая память. Некоторые присутствуют только в 0, например почтовые слоты.
+	
+	Неименованные каналы Windows обеспечивают однонаправленное (полудуплексное) посимвольное межпроцессное взаимодействие. Каждый канал имеет два дескриптора: дескриптор чтения и дескриптор записи. Дескрипторы каналов часто бывают наследуемыми. Чтобы канал можно было использовать для IPC, должен существовать еще один процесс, и для этого процесса требуется один из дескрипторов канала. 
+Анонимные каналы обеспечивают только однонаправленное взаимодействие. Для двухстороннего взаимодействия необходимы два канала. 
+
+	Именованные каналы обеспечивают межпроцессное взаимодействие между сервером и одним или несколькими клиентами. Они предоставляют больше функциональных возможностей, чем анонимные каналы, которые обеспечивают межпроцессное взаимодействие на локальном компьютере. Именованные каналы поддерживают дуплексную связь по сети, несколько экземпляров сервера, взаимодействие, основанное на сообщениях и олицетворение клиента, что позволяет подключаемым процессам использовать собственные наборы разрешений на удаленных серверах. Использовать именованные каналы для связи по сети возможно только для компьютеров с ОС Windows, подключенных к одной домашней группе. Поэтому, именованные каналы редко используются для клиент-серверных приложений.
+	
+	Возможность взаимодействия с другими системами обеспечивается в Windows поддержкой сокетов. Сокет – это оконечная точка соединения, которая идентифицируется 4 значениями: IP адрес отправителя, порт отправителя, IP адрес получателя, порт получателя. 
+	
+	Механизм сигналов как IPC отсутствует в ОС Windows. Процессы не могут отправлять сигналы другим процессам для обмена информацией. Присутствует 2 сигнала которые пользователь может отправлять приложению с клавиатуры: Ctrl+C и Ctrl+Break. Так же система может посылать приложению сигналы когда пользователь закрывает консоль, выходит из системы или когда система завершается.
+	
+	ОС Windows поддерживает такое средство, как именованная, совместно используемая память. Разделяемая память позволяет обмениваться информацией между двумя процессами.
+	
+	MailSlot – механизм синхронизации, иначе называемый «почтовый ящик». Каждый слот реализуется как псевдофайл в оперативной памяти и содержит некоторое количество записей («сообщений»), которые могут быть прочтены всеми компьютерами в сетевом домене. Используя почтовые слоты можно передавать данные между компьютерами в локальной сети. При создании почтовых слотов с одинаковым именем на нескольких компьютерах домена возможна широковещательная рассылка сообщений клиентов. Один клиентский процесс может посылать сообщения сразу всем этим серверным процессам.
+	
+
+\end{document}
+
