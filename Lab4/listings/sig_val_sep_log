@@ -1,0 +1,10 @@
+$ ./recv& 
+[1] 6212
+PID: 6212
+$ ./tran 6212
+sizeof string: 8193
+length: 8192
+signal sent to 6212
+[1]  + 6212 segmentation fault (core dumped)  ./recv
+^C
+

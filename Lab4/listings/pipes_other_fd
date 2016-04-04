@@ -4,7 +4,7 @@ errno: 24
 Pipes created: 510
 ^Z
 [1]  + 8484 suspended  ./a.out
-% ls -l /proc/8484/fd/ | grep -v pipe 
+$ ls -l /proc/8484/fd/ | grep -v pipe 
 total 0
 dr-x------. 2 ejiek ejiek  0 Mar 31 00:33 .
 dr-xr-xr-x. 9 ejiek ejiek  0 Mar 31 00:33 ..
