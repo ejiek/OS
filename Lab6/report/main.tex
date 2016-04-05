@@ -161,130 +161,12 @@ Ethernet adapter Ethernet:
 	\textbf{Задание} Создать клиент-серверное приложение, позволяющее набираемые символы в терминальном окне командной строки (сервер) отображать их в окно процесса-потомка (клиент).
 В программе-сервере master создается неименованный канал для связи с процессом-потомком, порождается сам процесс-потомок (программа-клиент) slave. На стороне сервера производится запись из консоли в канал. В slave открывается неименованный канал и осуществляется считывание из него в новое окно. Запись/чтение канала производится с помощью стандартных потоков \texttt{std\_in} и \texttt{std\_out}.
 
-	Исходный код программы master:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h>
-#include <stdio.h>
-#include <conio.h>
-#include <string.h>
-#include <iostream>
-using namespace std;
-int main() { // инициализируем необходимые структуры
-	STARTUPINFO si = { sizeof(si) };
-	SECURITY_ATTRIBUTES sa;
-	PROCESS_INFORMATION pi;
-	char buf[1024];
-	char t = '\n';
-	HANDLE newstdread, newstdwrite;//хэндлы потоков для пайпа
-	//инициализируем нужные поля SECURITY_ATTRIBUTES
-	sa.nLength = sizeof(sa);
-	sa.lpSecurityDescriptor = NULL;
-	sa.bInheritHandle = true; //разрешаем наследование дескрипторов
-	//создаем анонимный канал(создаем пайп для stdin)
-	if (!CreatePipe(&newstdread, //указатель на пеpеменную типа dword, котоpая получит //хэндл конца чтения пайпа
-					&newstdwrite, //указатель на пеpеменную типа dword, котоpая получит //хэндл на конец записи пайпа
-					&sa, // указатель на структуру атрибутов без-ти
-					0))//размер буфера, исп-ся по умолч.
-	{
-		cout << "I can't CreatePipe";
-		getch();
-		return 0;
-	}
-	else
-		cout << "\nPipe Created!\n";
-	//выводим на экран дескриптор потока ввода анонимного канала
-	cout << "The read HANDLE of PIPE = " << newstdread << endl;
-	//обнуляем поля STARTUPINFO и задаем нужные значения
-	ZeroMemory(&si, sizeof(STARTUPINFO));
-	si.cb = sizeof(STARTUPINFO);
-	si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
-	si.wShowWindow = SW_NORMAL;
-	//подменяем стандартный дескриптор ввода дескриптором ввода канала
-	si.hStdInput = newstdread;
-	si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-	si.hStdError = si.hStdOutput;
-	TCHAR czCommandLine[] = L"D:\\Study\\7 семестр\\ОС\\lab6\\progs\\slave_task1\\Debug\\slave_task1.exe";
-	if (!CreateProcess(NULL, czCommandLine, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-		cout << "Error: Can't CreateProcess";
-		getch();
-		CloseHandle(newstdread);
-		CloseHandle(newstdwrite);
-		return 0;
-	}
-	else
-	cout << "\nProcess Created!!!\n";
-	memset(buf, '\0', sizeof(buf));
-	cout << buf;
-	unsigned long bread;
-	cout << "STD INPUT HANDLE = " << GetStdHandle(STD_INPUT_HANDLE) << endl;
-	cout << "STD OUTPUT HANDLE = " << GetStdHandle(STD_OUTPUT_HANDLE) << endl;
-	while (1)
-	{
-		memset(buf, '\0', sizeof(buf));
-		*buf = (char)getch();
-		cout.put(*buf);
-		if (*buf == 13)
-		{
-			*buf = '\n';
-			cout.put(*buf);
-		}
-			WriteFile(newstdwrite, //указатель на пишущих хэндл канала
-					buf, // указатель на буфер
-					1, //кол-во байт данных,записываемых в буфер
-					&bread,// указатель на переменную, хранящую кол-во байт, записанных в буфер
-					NULL);//т.к. 1й аргумент не был открытс флагом FILE_FLAG_OVERLAPPED
-		if (*buf == 27)
-			break;
-	}
-	TerminateProcess(pi.hProcess, 0); // завершение процесса
-	CloseHandle(pi.hThread);
-	CloseHandle(pi.hProcess);
-	CloseHandle(newstdread);
-	CloseHandle(newstdwrite);
-	system("PAUSE");
-	return 0;
-}	
-	\end{lstlisting}
+	Исходный код программы pipe\_master:
+	\lstinputlisting[style=crs_cpp]{pipe_master.cpp}
 	
 	
-	Исходный код программы slave:
-	\begin{lstlisting}[style=crs_cpp]
-#include <iostream>
-#include <conio.h>
-#include <stdio.h>
-#include <windows.h>
-using namespace std;
-
-int main()
-{
-	char buf[2];
-	unsigned long avail;
-	cout << "STD INPUT HANDLE = " << GetStdHandle(STD_INPUT_HANDLE) << "\n";
-	cout << "STD OUTPUT HANDLE = " << GetStdHandle(STD_OUTPUT_HANDLE) << "\n";
-	unsigned long bread; //кол-во прочитанных байт
-	while (1){
-		PeekNamedPipe( // получаем данные из анонимного канала
-			GetStdHandle(STD_INPUT_HANDLE), // идентификатор канала Pipe
-			NULL, //адрес буфера для прочитанных данных(NULL -нет данных для чтения)
-			NULL, //размер буфера в байтах, параметр игнорируется, если буфер NULL
-			NULL, //указатель на переменную, которая получает число считанных байт //параметр = NULL, если нет данных для чтения
-			&avail, //адрес переменной, в которую будет записано общее количество //байт данных,доступных в канале для чтения
-			NULL); // адрес переменной, в которую будет записано количество //непрочитанных байт в данном сообщении
-		if (avail)
-		{
-			memset(buf, '\0', sizeof(buf));
-			ReadFile(
-				GetStdHandle(STD_INPUT_HANDLE), //handle канала
-				buf, //указатель на буфер,в который пишем считанные из //канала данные
-				1, //кол-во байтов для чтения
-				&bread, //указатель на переменную (кол-во считанных байт)
-				NULL); // если handle не OVERLAPPED, то равен NULL
-			cout << buf;
-		}
-	}
-	return 0;
-}
-	\end{lstlisting}
+	Исходный код программы pipe\_slave:
+	\lstinputlisting[style=crs_cpp]{pipe_slave.cpp}
 	
 	При запуске "сервера" в командной строке выводится текст "Pipe Created!", затем сервером порождается процесс "slave" в новом окне, после чего любые символы, которые пишем в окне сервера, моментально появляются в окне клиента.
 	\begin{figure}[h!]
@@ -301,120 +183,18 @@ int main()
 Клиент передает сообщение, например, вида: «message num 1». Сервер передает данное сообщение обратно. Процессы завершаются после передачи 10 сообщений.
 
 	Исходный код программы сервера:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h>
-#include <stdio.h>
-
-int main(int argc, char* argv[]) { 
-	HANDLE hReadPipeFromServToClient, hWritePipeFromServToClient; 
-	//дескрипторы канала для 
-	//передачи от сервера клиенту 
-	HANDLE hReadPipeFromClientToServ, hWritePipeFromClientToServ; 
-	//дескрипторы канала для 
-	//передачи от сервера клиенту 
-	SECURITY_ATTRIBUTES PipeSA = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE}; 
-	//чтобы сделать 
-	//дескрипторы наследуемыми 
-	//создаем канал для передачи от сервера клиенту, сразу делаем дескрипторы наследуемыми 
-	if(CreatePipe(&hReadPipeFromServToClient,&hWritePipeFromServToClient,&PipeSA,0)==0) { 
-		printf("impossible to create anonymous pipe from serv to client\n"); 
-		getchar();
-		return 1000;
-	} 
-	//создаем канал для передачи от клиента серверу, сразу делаем дескрипторы наследуемыми 
-	if(CreatePipe(&hReadPipeFromClientToServ,&hWritePipeFromClientToServ,&PipeSA,0)==0) { 
-		printf("impossible to create anonymous pipe from client to serv\n"); 
-		getchar();
-		return 1001;
-	} 
-	PROCESS_INFORMATION processInfo_Client;
-	// информация о процессе-клиенте
-	STARTUPINFO startupInfo_Client; 
-	//структура, которая описывает внешний вид основного 
-	//окна и содержит дескрипторы стандартных устройств нового процесса, используем для установки 
-	//процесс-клиент будет иметь те же параметры запуска, что и сервер, за исключением
-	//дескрипторов ввода, вывода и ошибок 
-	GetStartupInfo(&startupInfo_Client);
-	startupInfo_Client.hStdInput = hReadPipeFromServToClient; //устанавливаем поток ввода
-	startupInfo_Client.hStdOutput=hWritePipeFromClientToServ; //установим поток вывода 
-	startupInfo_Client.hStdError=GetStdHandle(STD_ERROR_HANDLE); //установим поток ошибок 
-	startupInfo_Client.dwFlags = STARTF_USESTDHANDLES; //устанавливаем наследование 
-	//создаем процесс клиента
-	TCHAR czCommandLine[] = L"D:\\Study\\7 семестр\\ОС\\lab6\\progs\\slave_task2\\Debug\\slave_task2.exe";
-	CreateProcess(NULL, czCommandLine, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &startupInfo_Client, &processInfo_Client);
-	CloseHandle(processInfo_Client.hThread); 
-	//закрываем дескрипторы созданного процесса и его 
-	//потока
-	CloseHandle(processInfo_Client.hProcess); 
-	//закрываем ненужные дескрипторы каналов, которые не использует сервер
-	CloseHandle(hReadPipeFromServToClient); 
-	CloseHandle(hWritePipeFromClientToServ); 
-#define BUF_SIZE 100 //размер буфера для сообщений 
-	BYTE buf[BUF_SIZE]; //буфер приема/передачи 
-	DWORD readbytes,writebytes; //число прочитанных/переданных байт
-	for(int i=0;i<10;i++) { //читаем данные из канала от клиента 
-		if(!ReadFile(hReadPipeFromClientToServ,buf,BUF_SIZE,&readbytes,NULL)) { 
-			printf("impossible to use readfile\n GetLastError= %d\n",GetLastError());
-			getchar(); 
-			return 10000;
-		} 
-		printf("get from client: \"%s\"\n",buf); 
-		if(!WriteFile(hWritePipeFromServToClient,buf,readbytes,&writebytes,NULL)) { 
-			printf("impossible to use writefile\n GetLastError= %d\n",GetLastError()); 
-			getchar(); 
-			return 10001; 
-		} //пишем данные в канал клиенту
-	} 
-	//закрываем HANDLE каналов 
-	CloseHandle(hReadPipeFromClientToServ);
-	CloseHandle(hWritePipeFromServToClient); 
-	printf("server ended work\n Press any key");
-	getchar();
-	return 0; 
-}
-	\end{lstlisting}
+	\lstinputlisting[style=crs_cpp]{pipe_server.cpp}
 	
 	
 	Исходный код программы клиента:
-	\begin{lstlisting}[style=crs_cpp]
-#include <stdio.h> 
-#include <Windows.h> 
-
-int main(int argc, char* argv[]) { 
-	char strtosend[100]; //строка для передачи 
-	char getbuf[100]; //буфер приема 
-	int bytestosend; //число передаваемых байт 
-	DWORD bytessended,bytesreaded; //число переданных и принятых байт 
-	for(int i=0;i<10;i++) { 
-		bytestosend=sprintf(strtosend,"message num %d",i+1); 
-		//формирование строки для 
-		//передачи 
-		strtosend[bytestosend]=0; 
-		fprintf(stderr,"client sended: \"%s\"\n",strtosend); 
-		if(!WriteFile(GetStdHandle(STD_OUTPUT_HANDLE),strtosend,bytestosend+1,&bytesreaded,NULL)) { 
-			fprintf(stderr,"Error with writeFile\n Wait 5 sec GetLastError= %d\n",GetLastError());
-			Sleep(5000); 
-			return 1000;
-		} 
-		if (!ReadFile(GetStdHandle(STD_INPUT_HANDLE), getbuf, 100, &bytesreaded, NULL)) { 
-			fprintf(stderr,"Error with readFile\n Wait 5 sec GetLastError= %d\n",GetLastError());
-			Sleep(5000); 
-			return 1001; 
-		} 
-		fprintf(stderr,"Get msg from server: \"%s\"\n",getbuf); 
-	} 
-	fprintf(stderr,"client ended work\n Wait 5 sec"); 
-	Sleep(5000); 
-	return 0; 
-}
-	\end{lstlisting}
+	\lstinputlisting[style=crs_cpp]{pipe_client.cpp}
 	
-	Результат выполнения программы приведен на рисунке \ref{img:task2}.
-	\begin{figure}[h!]
-		\center{\includegraphics[scale=1]{task2}}
-		\caption{Результат работы}
-		\label{img:task2}
-	\end{figure}
+	Результат выполнения программ:
+	Сервер:
+	\lstinputlisting[style=crs_cpp]{pipe_server.log}
+	Клиент:
+	\lstinputlisting[style=crs_cpp]{pipe_client.log}
+
 	
 \subsection{Именованные каналы}
 	Именованные каналы являются дуплексными, ориентированы на обмен сообщениями и обеспечивают взаимодействие через сеть. Кроме того, один именованный канал может иметь несколько открытых дескрипторов. В сочетании с удобными, ориентированными на выполнение транзакций функциями эти возможности делают именованные каналы пригодными для создания клиент-серверных систем. Обмен данными может быть синхронным и асинхронным.
