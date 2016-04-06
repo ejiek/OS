@@ -319,7 +319,7 @@ Ethernet adapter Ethernet:
 \subsection{Сокеты}
 	Возможность взаимодействия с другими системами обеспечивается в Windows поддержкой сокетов (sockets) Windows Sockets — совместимого и почти точного аналога сокетов Berkeley Sockets, де-факто играющих роль промышленного стандарта.
 	
-	Winsock API поддерживается библиотекой DLL (WS232.DLL), для получения доступа к которой следует подключить к программе библиотеку WS232.LIB. Эту DLL следует инициализировать с помощью нестандартной, специфической для Winsock функции WSAStartup, которая должна быть первой из функций Winsock, вызываемых программой. Когда необходимость в использовании функциональных возможностей Winsock отпадает, следует вызывать функцию WSACleanup.
+	Winsock API поддерживается библиотекой DLL (WS232.DLL), для получения доступа к которой следует подключить к программе библиотеку WS232.LIB. Эту DLL следует инициализировать с помощью нестандартной, специфической для Winsock функции WSAStartup, которая должна быть первой из функций Winsock, вызываемых программой. Когда необходимость в использовании функциональных возможностей Winsock отпадает, следует вызывать функцию WSACleanup. В QtCreator подключение происходит с помощью добавления в файл проекта (.pro) строчки "LIBS += -lws2\_32".
 	
 	После инициализации библиотеки сокетов можно использовать стандартные функции работы с сокетами.
 	
@@ -327,100 +327,42 @@ Ethernet adapter Ethernet:
 	
 	Программа локального обмена сокетами с использованием потокового протокола с установлением соединения (TCP в стеке TCP/IP). Для потоковых протоколов (к которым относится протокол TCP в стеке TCP/IP) необходимо применять средства, позволяющие определить границы сообщений в передаваемых данных, так как данный вид протоколов имеет дело с доставкой только потока байт (при этом гарантируется порядок доставки).
 	
-	Исходный код программы master:
+	Исходный код программы tcp\_server:
+	\lstinputlisting[style=crs_cpp]{tcp_server.cpp}
+
+	Основная функция программы tcp\_client:
 	\begin{lstlisting}[style=crs_cpp]
-int main(void) {
-	//используется для инициализации библиотеки сокетов 
-	WSADATA WSStartData; //Инициализация WinSock и проверка его запуска 
-	if (WSAStartup(MAKEWORD(2, 0), &WSStartData) != 0) { 
-		printf("WSAStartup failed with error: %d\n", GetLastError());
-		return 100;
-	} //создание сокета 
-	SOCKET server_socket; //по умолчанию используется протокол tcp 
-	printf("Server is started.\nTry to create socket -----------------");
-	if((server_socket = socket( AF_INET, SOCK_STREAM, 0 )) ==INVALID_SOCKET) { 
-		printf("error with creation socket. GetLasterror= %d\n",GetLastError()); 
-		return 1000;
-	}
-	printf("CHECK\n"); //Привязывание сокета конкретному IP и номеру порта
-	struct sockaddr_in sin; sin.sin_addr.s_addr=inet_addr("127.0.0.1"); // используем локальную машину 
-	sin.sin_port=htons(7500); // может быть любым кроме зарезервированных
-	sin.sin_family=AF_INET; printf("Try to bind socket -------------------"); 
-	if ( bind( server_socket, (struct sockaddr *)&sin, sizeof(sin) ) !=0 ) { 
-		printf("error with bind socket. GetLasterror= %d\n",GetLastError());
-		return 1001;
-	} 
-	printf("CHECK\n"); //делаем сокет прослушиваемым
-	printf("Try to set socket listening ----------");
-	if(listen(server_socket,5 )!=0) { 
-		printf("error with listen socket. GetLasterror= %d\n",GetLastError());
-		return 1002; 
-	} 
-	printf("CHECK\n"); 
-	printf("Server starts listening\n"); //Ждем клиента. Создаем пустую структуру, которая будет содержать параметры сокета, инициирующего соединение 
-	struct sockaddr_in from; 
-	int fromlen=sizeof(from); // начинаем "слушать" входящие запросы на подключение
-	SOCKET client_socket=accept(server_socket,(struct sockaddr*)&from,&fromlen); 
-	if(client_socket==INVALID_SOCKET) { 
-		printf("error with accept socket. GetLasterror= %d\n",GetLastError()); 
-		return 1003;
-	} 
-	printf("get client with IP= %s, port = %d\n",inet_ntoa(from.sin_addr),ntohs(from.sin_port));
-	char buf[SIZE_OF_BUF]; //буфер приема и передачи сообщения 
-	int readbytes; //число прочитанных байт 
-	while(1) {
-		if((readbytes=recvLine(client_socket,buf,SIZE_OF_BUF))==0) {
-			printf("Connection refused\n"); 
-			break;
-		} 
-		else if(readbytes==-1) { 
-			printf("buf is small\n");
-			return 2000; 
-		} 
-		printf("get msg from client \"%s\" with size= %d\n",buf,readbytes);
-		sendLine(client_socket,buf); //sendn(client_socket,buf,readbytes,0); //шлем сообщение обратно клиенту
-		if (strncmp(buf, "exit", 4) == 0) break;
-	} 
-	closesocket(client_socket); 
-	closesocket(server_socket);
-	return 0; 
-}
-	\end{lstlisting}	
-	
-	Исходный код программы slave:
-	\begin{lstlisting}[style=crs_cpp]
-int main(void) { //используется для инициализации библиотеки сокетов 
-	WSADATA WSStartData; //Инициализация WinSock и проверка его запуска 
-	if (WSAStartup(MAKEWORD(2, 0), &WSStartData) != 0) { 
-		printf("WSAStartup failed with error: %d\n", GetLastError()); 
-		return 100; 
-	} 
-	int er_code=0; // инициализация клиентского сокета
-	printf("Client is started.\nTry to create socket\n"); 
-	int client_socket = socket( AF_INET, SOCK_STREAM, 0 );
-	printf("socket created successfully\n"); 
-	struct sockaddr_in sin; 
-	sin.sin_addr.s_addr=inet_addr("127.0.0.1");
-	sin.sin_port=htons(7500); 
-	sin.sin_family=AF_INET; // установливаем TCP-соединение
-	printf("try to connect to server\n"); 
-	if(connect(client_socket, (struct sockaddr *) &sin,sizeof(sin))!=0) { 
-		printf("connect failed with error: %d\n", er_code);
-		return SOCKET_ERROR;
-	}
-	printf("Client connected sucessfully\nEnter msg to send\n---------------------\n");
-	char buf[SIZE_OF_BUF]; //буфер для приема и передачи сообщений 
-	while(1) { 
-		fgets(buf,SIZE_OF_BUF,stdin);
-		printf("client sended msg: %s",buf);
-		sendLine(client_socket,buf); 
-		recvLine(client_socket,buf,SIZE_OF_BUF);
-		printf("get msg from serv: \"%s\"\n**********************\n",buf); 
-	} // заканчиваем работу с сокетом клиента 
-	closesocket(client_socket);
-	return 0;
-}
-	\end{lstlisting}
+	int main(void) { //используется для инициализации библиотеки сокетов
+    WSADATA WSStartData; //Инициализация WinSock и проверка его запуска
+    if (WSAStartup(MAKEWORD(2, 0), &WSStartData) != 0) {
+        printf("WSAStartup failed with error: %ld\n", GetLastError());
+        return 100;
+    }
+    int er_code=0; // инициализация клиентского сокета
+    printf("Client is started.\nTry to create socket\n");
+    int client_socket = socket( AF_INET, SOCK_STREAM, 0 );
+    printf("socket created successfully\n");
+    struct sockaddr_in sin;
+    sin.sin_addr.s_addr=inet_addr("127.0.0.1");
+    sin.sin_port=htons(7500);
+    sin.sin_family=AF_INET; // установливаем TCP-соединение
+    printf("try to connect to server\n");
+    if(connect(client_socket, (struct sockaddr *) &sin,sizeof(sin))!=0) {
+        printf("connect failed with error: %d\n", er_code);
+        return SOCKET_ERROR;
+    }
+    printf("Client connected sucessfully\nEnter msg to send\n---------------------\n");
+    char buf[SIZE_OF_BUF]; //буфер для приема и передачи сообщений
+    while(1) {
+        fgets(buf,SIZE_OF_BUF,stdin);
+        printf("client sended msg: %s",buf);
+        sendLine(client_socket,buf);
+        recvLine(client_socket,buf,SIZE_OF_BUF);
+        printf("get msg from serv: \"%s\"\n**********************\n",buf);
+    } // заканчиваем работу с сокетом клиента
+    closesocket(client_socket);
+    return 0;
+}	\end{lstlisting}
 	
 	Результат выполнения программы приведен на рисунке \ref{img:task6}.
 	\begin{figure}[h!]
@@ -464,25 +406,23 @@ DWORD WINAPI threadHandler(LPVOID param){
 	closesocket(server_socket);
 	\end{lstlisting}
 	
-	Результат выполнения программы приведен на рисунке \ref{img:task6_2}.
+	С помощью сокетов часто реализовывают сетевые приложения. Для этого необходимо внести незначительные изменения в код сервера и клиента: слушающий сокет сервера необходимо привязывать к адресу \texttt{INADDR\_ANY}, чтобы он мог принимать соединения с любых адресов; клиенту необходимо указать IP адрес компьютера, на котором запущен сервер.
+	
+	Результат выполнения сервера и двух клиентов рис. \ref{img:task6_2}. По этому рисунку видно, что общение происходило между разными компьютерами в сети.
 	\begin{figure}[h!]
 		\center{\includegraphics[scale=0.8]{task6_2}}
-		\caption{Результат работы}
+		\caption{Основная машина}
 		\label{img:task6_2}
-	\end{figure}
+	\end{figure}	
 	
-	С помощью сокетов часто реализовывают сетевые приложения. Для этого необходимо внести незначительные изменения в код сервера и клиента: слушающий сокет сервера необходимо привязывать к адресу \texttt{INADDR\_ANY}, чтобы он мог принимать соединения с любых адресов; клиенту необходимо указать IP адрес компьютера, на котором запущен клиент.
-	
-	Результат выполнения программы приведен на рисунке \ref{img:task6_3}.
+	Результат выполнения двух удалённых клиентов \ref{img:task6_3}.
 	\begin{figure}[h!]
 		\center{\includegraphics[scale=0.5]{task6_3}}
-		\caption{Сетевая передача данных с помощью сокетов}
+		\caption{Дополнительная (удалённая) машина}
 		\label{img:task6_3}
 	\end{figure}
 	
-	Правая консоль --– отображает информацию, выводимую утилитой netstat. Прямоугольником выделена строчка, соответствующая слушающему сокету сервера.
-	
-	Более подробное ознакомление с сокетами было проведено на курсе компьютерных сетей.
+Так мы видим, что с одним сервером могут работать сразу несколько клиентов, причём доступ открыт и из сети. Открытие доступа требует дополнительных прав при запуске программы, но получив права, сервер успешно запускается. Обеспечение доступа всех клиентов к общему ресурсу с помощью мьютекса является самым простым и надёжным решением, однако наименее эффективным.
 	
 \subsection{Сигналы в Windows}
 	Данное средство IPC в Windows не поддерживается. Однако, например, консольному приложению можно посылать сигналы CTRL+C и CTRL+BREAK. Система может посылать приложению сигналы: \texttt{CTRL\_CLOSE\_EVENT,\\ CTRL\_LOGOFF\_EVENT и CTRL\_SHUTDOWN\_EVENT}, когда пользователь закрывает консоль, выходит из системы, или когда система завершается. По получению данных сигналов процесс может произвести корректное завершение.

@@ -1,0 +1,15 @@
+Client is started.
+Try to create socket
+socket created successfully
+try to connect to server
+Client connected sucessfully
+Enter msg to send
+---------------------
+Hi there!
+client sended msg: Hi there!
+get msg from serv: "Hi there!"
+**********************
+it's so hard to come up with a long string. will do!
+client sended msg: it's so hard to come up with a long string. will do!
+get msg from serv: "it's so hard to come up with a long string. will do!"
+**********************

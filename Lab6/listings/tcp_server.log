@@ -1,0 +1,7 @@
+Try to create socket -----------------CHECK
+Try to bind socket -------------------CHECK
+Try to set socket listening ----------CHECK
+Server starts listening
+get client with IP= 127.0.0.1, port = 58848
+get msg from client "Hi there!" with size= 9
+get msg from client "it's so hard to come up with a long string. will do!" with size= 52
