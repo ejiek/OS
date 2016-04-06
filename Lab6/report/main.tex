@@ -209,190 +209,17 @@ Ethernet adapter Ethernet:
 	
 	\textbf{Задание} Реализовать между одним клиентом и сервером обмен данными, вводимыми с консоли на стороне клиента и возвращаемыми сервером обратно до получения команды exit.
 
-	Программа-сервер (файл Master) создает именованый канал для двунаправленного использования и ожидает подключения программы-клиента (slave).
+	Программа-сервер создает именованный канал для двунаправленного использования и ожидает подключения программы-клиента.
 	
 	Проверяем, корректно ли произошло подключение, затем входим в цикл получения команд от "клиента" с последующими эхо-ответами. При появлении команды exit со стороны клиента, сервер завершает работу, закрывает канал.
 	
 	Клиент на своей стороне открывает канал, пишет в него и читает эхо-ответ. При вводе exit программа завершается.
 	
-	Исходный код программы master:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h>
-#include <stdio.h>
-#include <conio.h>
-int main()
-{
-	// Флаг успешного создания канала
-	BOOL fConnected;
-	// Идентификатор канала Pipe
-	HANDLE hNamedPipe;
-	// Имя создаваемого канала Pipe
-	LPCWSTR lpszPipeName = L"\\\\.\\pipe\\$MyPipe$";
-	// Буфер для передачи данных через канал
-	char szBuf[512];
-	// Количество байт данных, принятых через канал
-	DWORD cbRead;
-	// Количество байт данных, переданных через канал
-	DWORD cbWritten;
-	printf("Named pipe was creating \n");
-	// Создаем канал Pipe, имеющий имя lpszPipeName
-	hNamedPipe = CreateNamedPipe(
-		lpszPipeName, //имя канала
-		PIPE_ACCESS_DUPLEX, // режим котрытия канала - двунаправленный
-		//параметры режима pipe:
-		PIPE_TYPE_MESSAGE //Данные записываются в канал в виде потока сообщений
-		| PIPE_READMODE_MESSAGE //Данные считываются в виде потока сообщений
-		| PIPE_WAIT,// блокирующий режим
-		PIPE_UNLIMITED_INSTANCES, //неограниченное кол-во "подключений" к каналу
-		512, 512, //кол-во байт входного и вызодного буферов
-		0, //тайм-аут в 50 миллисекунд (по умолчанию)
-		NULL); // дескриптор безопасности по умолчанию
-	// Если возникла ошибка, выводим ее код и
-	// завершаем работу приложения
-	if (hNamedPipe == INVALID_HANDLE_VALUE)
-	{
-		fprintf(stdout, "CreateNamedPipe: Error %ld\n",
-			GetLastError());
-		getch();
-		return 0;
-	}
-	// Выводим сообщение о начале процесса создания канала
-	fprintf(stdout, "Waiting for connect...\n");
-	// Ожидаем соединения со стороны клиента
-	fConnected = ConnectNamedPipe(hNamedPipe, // имя канала
-		NULL); // overlapped=null
-	// При возникновении ошибки выводим ее код
-	if (!fConnected)
-	{
-		switch (GetLastError())
-		{
-		case ERROR_NO_DATA:
-			fprintf(stdout, "ConnectNamedPipe: ERROR_NO_DATA");
-			getch();
-			CloseHandle(hNamedPipe);
-			return 0;
-			break;
-		case ERROR_PIPE_CONNECTED:
-			fprintf(stdout,
-				"ConnectNamedPipe: ERROR_PIPE_CONNECTED");
-			getch();
-			CloseHandle(hNamedPipe);
-			return 0;
-			break;
-		case ERROR_PIPE_LISTENING:
-			fprintf(stdout,
-				"ConnectNamedPipe: ERROR_PIPE_LISTENING");
-			getch();
-			CloseHandle(hNamedPipe);
-			return 0;
-			break;
-		case ERROR_CALL_NOT_IMPLEMENTED:
-			fprintf(stdout,
-				"ConnectNamedPipe: ERROR_CALL_NOT_IMPLEMENTED");
-			getch();
-			CloseHandle(hNamedPipe);
-			return 0;
-			break;
-		default:
-			fprintf(stdout, "ConnectNamedPipe: Error %ld\n",
-				GetLastError());
-			getch();
-			CloseHandle(hNamedPipe);
-			return 0;
-			break;
-		}
-		CloseHandle(hNamedPipe);
-		getch();
-		return 0;
-	} // Выводим сообщение об успешном создании канала
-	fprintf(stdout, "\nConnected. Waiting for command...\n");
-	// Цикл получения команд из канала
-	while (1)
-	{
-		if (ReadFile(hNamedPipe, szBuf, 512, &cbRead, NULL))
-		{
-			// Выводим принятую команду на консоль
-			printf("Received: <%s>\n", szBuf);
-			// Если пришла команда "exit",
-			// завершаем работу приложения
-			if (!strcmp(szBuf, "exit"))
-				break;
-			// отправляем эхо-ответ
-			if (!WriteFile(hNamedPipe, szBuf, strlen(szBuf) + 1, &cbWritten, NULL)) break;
-		}
-		else
-		{
-			getch();
-			break;
-		}
-	}
-	CloseHandle(hNamedPipe);
-	return 0;
-}
-	\end{lstlisting}
+	Исходный код программы nppipe\_server:
+	\lstinputlisting[style=crs_cpp]{npipe_server.cpp}
 	
-	
-	Исходный код программы slave:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h>
-#include <stdio.h>
-#include <conio.h>
-DWORD main(int argc, char *argv[])
-{ // Идентификатор канала Pipe
-	HANDLE hNamedPipe;
-	// Количество байт, переданных через канал
-	DWORD cbWritten;
-	// Количество байт, принятых через канал
-	DWORD cbRead;
-	// Буфер для передачи данных
-	char szBuf[256];
-	// Буфер для имени канала Pipe
-	LPCWSTR szPipeName = L"\\\\.\\pipe\\$MyPipe$";
-	printf("Named pipe client demo\n");
-	printf("Syntax: pipec [servername]\n");
-	// открываем handle нашего именованого pipe
-	hNamedPipe = CreateFile(
-		szPipeName, // pipe name
-		GENERIC_READ | // read and write access
-		GENERIC_WRITE,
-		0, // no sharing
-		NULL, // default security attributes
-		OPEN_EXISTING, // opens existing pipe
-		0, // default attributes
-		NULL); // no template file
-	// Если возникла ошибка, выводим ее код и
-	// завершаем работу приложения
-	if (hNamedPipe == INVALID_HANDLE_VALUE)
-	{
-		fprintf(stdout, "CreateFile: Error %ld\n",
-			GetLastError());
-		getch();
-		return 0;
-	}
-	// Выводим сообщение о создании канала
-	fprintf(stdout, "\nConnected. Type 'exit' to terminate\n");
-	// Цикл обмена данными с серверным процессом
-	while (1)
-	{ // Выводим приглашение для ввода команды
-		printf("cmd>");
-		// Вводим текстовую строку
-		gets(szBuf);
-		// Передаем введенную строку серверному процессу
-		// в качестве команды
-		if (!WriteFile(hNamedPipe, szBuf, strlen(szBuf) + 1, &cbWritten, NULL)) break;
-		// Получаем эту же команду обратно от сервера
-		if (ReadFile(hNamedPipe, szBuf, 512, &cbRead, NULL))
-			printf("Received back: <%s>\n", szBuf);
-		// В ответ на команду "exit" завершаем цикл
-		// обмена данными с серверным процессом
-		if (!strcmp(szBuf, "exit"))
-			break;
-	}
-	// Закрываем идентификатор канала
-	CloseHandle(hNamedPipe);
-	return 0;
-}
-	\end{lstlisting}
+	Исходный код программы npipe\_client:
+	\lstinputlisting[style=crs_cpp]{npipe_client.cpp}
 	
 	Результат выполнения программы приведен на рисунке \ref{img:task3}.
 	\begin{figure}[h!]
@@ -405,7 +232,7 @@ DWORD main(int argc, char *argv[])
 	
 	Клиент после запуска выводит уведомления о том, что он подключился к серверу и ожидает ввода команд в строке cmd> . Вводимые в командной строке символы он пересылает серверу и сразу выводит возвращенный эхо-ответ от него. Для завершения сеанса обмена следует ввести зарезервированную команду exit на стороне клиента, после ее доставки серверу, он завершает работу.
 	
-	Сервер работает с одним клиентом, поэтому ему не нужно вызывать функции отсоединения клиента (по завершению сервера, клиент тоже завершается).
+	Сервер работает с одним клиентом, поэтому ему не нужно вызывать функции отсоединения клиента (по завершению сервера, клиент тоже завершается).\\
 	
 	\textbf{Задание} Реализовать между сервером и множеством клиентов обмен данными, вводимыми с консоли на стороне клиента и возвращаемыми сервером обратно до получения команды exit.
 	
@@ -415,107 +242,12 @@ DWORD main(int argc, char *argv[])
 	
 	Обратить внимание на использование функции WaitNamedPipe, а также на возможность использования количества экземпляров каналов, равного количеству потенциальных клиентов.
 	
-	Исходный код программы master:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h>
-#include <stdio.h>
-#define SIZE_OF_BUF 1000 
-
-int main() { 
-	HANDLE hNamedPipe; // Идентификатор каналаPipe 
-	LPCWSTR lpszPipeName = L"\\\\.\\pipe\\$$MyPipe$$"; // Имя создаваемого канала 	Pipe
-	char buf[SIZE_OF_BUF]; // Буфер для передачи данных через канал
-	DWORD readbytes,writebytes; //число байт прочитанных и переданных 
-	printf("Server is started. Try to create named pipe\n"); // Создаем канал Pipe, имеющий имя	lpszPipeName
-	hNamedPipe = CreateNamedPipe(lpszPipeName, //имя канала
-											PIPE_ACCESS_DUPLEX, //доступ и на чтение и на запись 
-											PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, //передача сообщений (как чтение, так и запись) 
-											5, //максимальное число экземпляров каналов равно 5 (число клиентов) 
-											SIZE_OF_BUF, 
-											SIZE_OF_BUF, 
-											5000,
-											NULL); //размеры выходного и входного буферов канала, 5 секунд - длительность для функции WaitNamedPipe 
-	if(hNamedPipe == INVALID_HANDLE_VALUE) { 
-		fprintf(stdout,"CreateNamedPipe: Error %ld\n",GetLastError());
-		getchar();
-		return 1000;
-	} 
-	printf("Named pipe created successfully\n"); // Выводим сообщение о начале процесса создания канала
-	printf("waiting for connect\n"); // Ожидаем соединения со стороны клиента
-	if(!ConnectNamedPipe(hNamedPipe, NULL)) { // При возникновении ошибки выводим ее код 
-		printf("error with function ConnectNamedPipe\n"); 
-		getchar(); 
-		CloseHandle(hNamedPipe);
-		return 1001; 
-	} // Выводим сообщение об успешном создании канала 
-	fprintf(stdout,"Client connected\n"); // Цикл получения команд через канал
-	while(1) { // Получаем очередную команду через канал Pipe 
-		if(ReadFile(hNamedPipe, buf, SIZE_OF_BUF, &readbytes, NULL)) { // Посылаем эту команду обратно клиентскому // приложению 
-			if(!WriteFile(hNamedPipe, buf, strlen(buf) + 1, &writebytes, NULL)) break; // Выводим принятую команду на консоль 
-			printf("Get client msg: %s\n", buf); // Если пришла команда "exit", // завершаем работу приложения
-			if(!strncmp(buf, "exit",4))
-				break;
-		} else { 
-			fprintf(stdout,"ReadFile: Error %ld\n",GetLastError()); 
-			getchar(); 
-			break; 
-		} 
-	} 
-	CloseHandle(hNamedPipe); 
-	printf("server is ending\n press any key\n"); 
-	getchar();
-	return 0; 
-}
-	\end{lstlisting}
+	Исходный код программы npipe\_server\_bi:
+	\lstinputlisting[style=crs_cpp]{npipe_server_bi.cpp}
 	
 	
-	Исходный код программы slave:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h>
-#include <stdio.h> 
-#define SIZE_OF_BUF 1000 
-
-DWORD main(int argc, char *argv[]) { 
-	HANDLE hNamedPipe; // Идентификатор канала Pipe 
-	DWORD readbytes,writebytes; // количество байт принятых и переданных в канал
-	char buf[SIZE_OF_BUF]; // Буфер для передачи данных 
-	printf("Client is started\n Try to use WaitNamedPipe\n"); //"ожидаем" пока освободится канал
-	LPCWSTR szPipeName = L"\\\\.\\pipe\\$$MyPipe$$";
-	if (!WaitNamedPipe(szPipeName, NMPWAIT_WAIT_FOREVER)) {
-		printf("pipe wasn't created\n getlasterror = %d", GetLastError()); 
-		getchar();
-		return 1000;
-	} // Создаем канал с процессом-сервером
-	hNamedPipe = CreateFile(szPipeName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL); // Если возникла ошибка, выводим ее код и
-	// завершаем работу приложения 
-	if(hNamedPipe == INVALID_HANDLE_VALUE) {
-		fprintf(stdout,"CreateFile: Error %ld\n",GetLastError()); 
-		getchar(); 
-		return 1001;
-	} // Выводим сообщение о создании канала
-	printf("successfully connected\n input message\n"); // Цикл обмена данными с серверным процессом 
-	while(1) { // Выводим приглашение для ввода команды printf("cmd>"); // Вводим текстовую строку 
-		fgets(buf,SIZE_OF_BUF,stdin); // Передаем введенную строку серверному процессу // в качестве команды
-		if(!WriteFile(hNamedPipe, buf, strlen(buf) + 1, &writebytes, NULL)) { 
-			printf("connection refused\n"); 
-			break;
-		} // Получаем эту же команду обратно от сервера
-		if(ReadFile(hNamedPipe, buf, SIZE_OF_BUF, &readbytes, NULL)) 
-			printf("Received from server: %s\n", buf); // Если произошла ошибка, выводим ее код и // завершаем работу приложения 
-		else { 
-			fprintf(stdout,"ReadFile: Error %ld\n", GetLastError()); 
-			getchar(); 
-			break;
-		} // В ответ на команду "exit" завершаем цикл // обмена данными с серверным процессом
-		if(!strncmp(buf, "exit",4))
-			break;
-	} // Закрываем идентификатор канала 
-	CloseHandle(hNamedPipe); 
-	printf("client is ending\n Press any key\n");
-	getchar(); 
-	return 0;
-}
-	\end{lstlisting}
+	Исходный код программы npipe\_client\_bi:
+	\lstinputlisting[style=crs_cpp]{npipe_client_bi.cpp}
 	
 	Результат выполнения программы приведен на рисунке \ref{img:task4}.
 	\begin{figure}[h!]
@@ -525,74 +257,7 @@ DWORD main(int argc, char *argv[]) {
 	\end{figure}
 	
 	Для подключения нескольких клиентов сервер был изменен:
-	\begin{lstlisting}[style=crs_cpp]
-DWORD WINAPI threadHandler(LPVOID param){
-	HANDLE hNamedPipe = (HANDLE)param;
-	DWORD readbytes, writebytes; //число байт прочитанных и переданных
-	char buf[SIZE_OF_BUF]; // Буфер для передачи данных через канал
-	while (1)
-	{
-		// Получаем очередную команду через канал Pipe
-		if (ReadFile(hNamedPipe, buf, SIZE_OF_BUF, &readbytes, NULL))
-		{
-			// Посылаем эту команду обратно клиентскому
-			// приложению
-			if (!WriteFile(hNamedPipe, buf, strlen(buf) + 1, &writebytes, NULL))
-				break;
-			// Выводим принятую команду на консоль
-			printf("Get client msg: %s\n", buf);
-			// Если пришла команда "exit",
-			// завершаем работу приложения
-			if (!strncmp(buf, "exit", 4))
-				break;
-		}
-		else
-		{
-			fprintf(stdout, "ReadFile: Error %ld\n", GetLastError());
-			getchar();
-			break;
-		}
-	}
-	CloseHandle(hNamedPipe);
-	ExitThread(0);
-}
-//.......................
-//main:
-	while (1){
-		hNamedPipe = CreateNamedPipe(
-			lpszPipeName, //имя канала
-			PIPE_ACCESS_DUPLEX, //доступ и на чтение и на запись
-			PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, //передача сообщений (как чтение,
-			//так и запись)
-			5, //максимальное число экземпляров каналов равно 5 (число клиентов)
-			SIZE_OF_BUF, SIZE_OF_BUF, 5000, NULL); //размеры выходного и входного буферов канала, 5
-		//секунд - длительность для функции WaitNamedPipe
-		if (hNamedPipe == INVALID_HANDLE_VALUE) // Если возникла ошибка, выводим ее код и завершаем
-			//работу приложения
-		{
-			fprintf(stdout, "CreateNamedPipe: Error %ld\n", GetLastError());
-			getchar();
-			return 1000;
-		}
-		printf("Named pipe created successfully\n");
-		// Выводим сообщение о начале процесса создания канала
-		printf("waiting for connect\n");
-		// Ожидаем соединения со стороны клиента
-
-		if (!ConnectNamedPipe(hNamedPipe, NULL))
-		{
-			// При возникновении ошибки выводим ее код
-			printf("error with function ConnectNamedPipe\n");
-			getchar();
-			CloseHandle(hNamedPipe);
-			return 1001;
-		}
-		// Выводим сообщение об успешном создании канала
-		fprintf(stdout, "Client connected\n");
-		t = CreateThread(NULL, 0, threadHandler, (LPVOID)hNamedPipe, 0, NULL);
-		CloseHandle(t);
-	}
-	\end{lstlisting}
+	\lstinputlisting[style=crs_cpp]{npipe_server_bi_multi.cpp}
 	
 	Результат выполнения программы приведен на рисунке \ref{img:task4_2}.
 	\begin{figure}[h!]
@@ -605,62 +270,52 @@ DWORD WINAPI threadHandler(LPVOID param){
 	
 	Для совместной работы компьютеры нужно подсоединить к одной домашней группе. Так же необходимо установить поле DACL (Discretionary Access Control List) защиты объекта в NULL (разрешение всем пользователям и группам доступа к объекту). Параметры защиты именованного канала задаются с помощью структуры SECURITYATTRIBUTES, которая указывается последним параметром в функции CreateNamedPipe.
 	
-	Изменения в master для работы по сети:
-	\begin{lstlisting}[style=crs_cpp]
-	// Создание SECURITY_ATTRIBUTES и SECURITY_DESCRIPTOR объектов 
-	SECURITY_ATTRIBUTES sa; 
-	SECURITY_DESCRIPTOR sd;
-	// Инициализация SECURITY_DESCRIPTOR значениями по-умолчанию 
-	if (InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION) == 0) {
-		printf("InitializeSecurityDescriptor failed with error %d\n", GetLastError());
-		return 50000; 
-	}
-	// Установка поля DACL в SECURITY_DESCRIPTOR в NULL
-	if (SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE) == 0) {
-		printf("SetSecurityDescriptorDacl failed with error %d\n", GetLastError()); 
-		return 50001;
-	} // Установка SECURITY_DESCRIPTOR в структуре SECURITY_ATTRIBUTES
-	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-	sa.lpSecurityDescriptor = &sd; 
-	sa.bInheritHandle = FALSE; //запрещение наследования
-	hNamedPipe = CreateNamedPipe( lpszPipeName, //имя канала
-								PIPE_ACCESS_DUPLEX, //доступ и на чтение и на запись 
-								PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, //передача сообщений (как чтение, так и запись) 
-								5, //максимальное число экземпляров каналов равно 5 (число клиентов)
-								SIZE_OF_BUF, 
-								SIZE_OF_BUF, 
-								5000, 
-								&sa); //размеры выходного и входного буферов канала, 5 секунд - длительность для функции WaitNamedPipe
-	\end{lstlisting}
+	Server для работы по сети:
+	\lstinputlisting[style=crs_cpp]{npipe_server_bi_multi_net.cpp}
 	
-	Изменения в slave для работы по сети:
-	\begin{lstlisting}[style=crs_cpp]
-//адрес сервера и имя канала 
-	LPCWSTR szPipeName = L"\\\\192.168.0.178\\pipe\\$$MyPipe$$";
-	//"ожидаем" пока освободится канал 
-	if (!WaitNamedPipe(szPipeName, NMPWAIT_WAIT_FOREVER)) {
-		printf("pipe wasn't created\n getlasterror = %d", GetLastError()); 
-		getchar(); 
-		return 1000; 
-	} // Создаем канал с процессом-сервером
-	\end{lstlisting}
+	Client для работы по сети:
+	\lstinputlisting[style=crs_cpp]{npipe_client_bi_net.cpp}
 	
-	Программы были протестированы в локальной сети. Программы master и slave запускались на разных машинах с ОС Windows 10. Компьютеры были объединены в общую домашнюю группу.
+	Программы были протестированы в локальной сети. Программы npipe\_server\_bi\_multi\_net и npipe\_client\_bi\_net запускались на разных машинах с ОС Windows 10. Компьютеры были объединены в общую домашнюю группу.
 	
-	Вывод программы master приведен на рисунке \ref{img:task5m}.
+	Результат работы npipe\_server\_bi\_multi\_net на основной машине приведен на рисунке \ref{img:task5m}.
 	\begin{figure}[h!]
 		\center{\includegraphics[scale=0.8]{task5m}}
-		\caption{Результат работы master}
+		\caption{Результат работы npipe\_server\_bi\_multi\_net}
 		\label{img:task5m}
 	\end{figure}
 	
-	Вывод программы slave приведен на рисунке \ref{img:task5s}.
+	Результат работы npipe\_client\_bi\_net на дополнительной машине приведен на рисунке \ref{img:task5s}.
 	\begin{figure}[h!]
 		\center{\includegraphics[scale=0.8]{task5s}}
-		\caption{Результат работы slave}
+		\caption{Результат работы npipe\_client\_bi\_net}
 		\label{img:task5s}
+	\end{figure}		
+	
+	Из-за сложности получения в программе собственных сетевых адресов для подтверждения общения по сети, было решено отловить трафик утилитой WireShark. Трафик отлавливался на основной машине (сторона сервера)
+	
+		Инициализация общения представлена на рисунке \ref{img:wireinit}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{wire_init}}
+		\caption{Инициализация общения сервера и клиента}
+		\label{img:wireinit}
 	\end{figure}
 	
+	Пример записи и последующего чтения представлен на рисунке \ref{img:wiremsg}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{wire_msg}}
+		\caption{Один цикл обмена данными}
+		\label{img:wiremsg}
+	\end{figure}
+	
+	Этап завершения общения представлен на рисунке \ref{img:wireexit}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{wire_exit}}
+		\caption{Инициализация общения сервера и клиента}
+		\label{img:wireexit}
+	\end{figure}
+	
+	Из записи трафика видно, что общение происходит между двумя машинами, а нагрузка на сеть достаточно велика.
 \subsection{Сокеты}
 	Возможность взаимодействия с другими системами обеспечивается в Windows поддержкой сокетов (sockets) Windows Sockets — совместимого и почти точного аналога сокетов Berkeley Sockets, де-факто играющих роль промышленного стандарта.
 	

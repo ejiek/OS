@@ -1,0 +1,9 @@
+Named pipe client demo
+Syntax: pipec [servername]
+
+Connected. Type 'exit' to terminate
+cmd>Hi!
+Received back: <Hi!>
+cmd>W R U so silent?
+Received back: <W R U so silent?>
+cmd>exit

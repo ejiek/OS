@@ -1,0 +1,11 @@
+Client is started
+ Try to use WaitNamedPipe
+successfully connected
+ input message
+Hi!
+Received from server: Hi!
+
+Oh, U R my echo =]
+Received from server: Oh, U R my echo =]
+
+exit
