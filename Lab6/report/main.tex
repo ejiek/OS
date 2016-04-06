@@ -436,52 +436,7 @@ DWORD WINAPI threadHandler(LPVOID param){
 	В функции main регистрируется обработчик сигналов, затем главный поток работает в бесконечном цикле.
 	
 	Искодный код:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h> 
-#include <stdio.h> 
-
-BOOL CtrlHandler( DWORD fdwCtrlType ) { 
-	switch( fdwCtrlType )  { 
-		// Handle the CTRL-C signal.
-	case CTRL_C_EVENT: 
-		printf( "Ctrl-C event\n\n" ); 
-		Beep( 750, 300 ); 
-		return( TRUE ); //CTRL-CLOSE: confirm that the user wants to exit.
-	case CTRL_CLOSE_EVENT: 
-		Beep( 600, 200 ); 
-		printf( "Ctrl-Close event\n\n" );
-		return(TRUE); // Pass other signals to the next handler. 
-	case CTRL_BREAK_EVENT:
-		Beep( 900, 200 );
-		printf( "Ctrl-Break event\n\n" );
-		return FALSE;
-	case CTRL_LOGOFF_EVENT: 
-		Beep( 1000, 200 );
-		printf( "Ctrl-Logoff event\n\n" );
-		return FALSE;
-	case CTRL_SHUTDOWN_EVENT:
-		Beep( 750, 500 ); 
-		printf( "Ctrl-Shutdown event\n\n" ); 
-		return FALSE; 
-	default:
-		return FALSE; 
-	}
-} 
-
-int main( void ) {
-	if( SetConsoleCtrlHandler( (PHANDLER_ROUTINE) CtrlHandler, TRUE ) ) {
-		printf( "\nThe Control Handler is installed.\n" ); 
-		printf( "\n -- Now try pressing Ctrl+C or Ctrl+Break, or" ); 
-		printf( "\n try logging off or closing the console...\n" ); 
-		printf( "\n(...waiting in a loop for events...)\n\n" ); 
-		while( 1 ){ } 
-	} else { 
-		printf( "\nERROR: Could not set control handler");
-		return 1; 
-	} 
-	return 0; 
-}
-	\end{lstlisting}
+	\lstinputlisting[style=crs_cpp]{signal.cpp}
 	
 	Результат выполнения программы приведен на рисунке \ref{img:task7}.
 	\begin{figure}[h!]
@@ -489,6 +444,20 @@ int main( void ) {
 		\caption{Результат работы}
 		\label{img:task7}
 	\end{figure}
+	Так как сигналы не являются средством IPC в Windows, а средством пользователя и системы с процессом, то можно предположить что собственные обработчики сигналов задуманы для корректного завершения программы, например, закрытия всех поток и корректное окончание записи файлов, для которых простой обрыв неприемлем. Так реализуем популярный в программах с графическим интерфейсом вопрос "Уверены ли вы, что хотите закрыть программу". Для этого изменим обработчик:
+	\begin{lstlisting}[style=crs_cpp]
+	printf( "Do you want to close this app?\nPress Ctrl-C one more time to close it...\n\n" );
+	SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, FALSE);
+	return( TRUE ); //CTRL-CLOSE: confirm that the user wants to exit. \end{lstlisting}
+
+	Результат выполнения программы при двухкратном нажатие Ctrl-C приведен на рисунке \ref{img:task7_1}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task7_1}}
+		\caption{Результат работы с собственным обработчиком}
+		\label{img:task7_1}
+	\end{figure}
+	
+	Программа при первом сигнале попадает в свой обработчик, где выводит инструкцию пользователю и устанавливает обработчик по умолчанию. При втором сигнале вызывается обработчик по умолчанию, а он приводит к завершению процесса.
 	
 \subsection{Разделяемая память}
 	Потоки одного процесса могут разделять общую память этого процесса. У каждого процесса – свое изолированное адресное пространство. Кроме рассмотренных выше средств передачи информации между процессами или потоками разных процессов, одно из наиболее эффективных – использование общей памяти, доступ к которой обеспечивается со стороны каждого процесса. ОС Windows поддерживает такое средство, как именованная, совместно используемая память.
