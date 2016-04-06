@@ -474,111 +474,10 @@ DWORD WINAPI threadHandler(LPVOID param){
 	\textbf{Задание} Создать программу, в которой первый процесс генерирует случайное число и записывает его в буфер, доступный второму процессу, откуда он его и считывает с последующим выводом.
 	
 	Исходный код первой:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h>
-#include <stdio.h>
-#include <conio.h>
-#define BUF_SIZE 256
-TCHAR szName[] = TEXT("MyFileMappingObject");
-TCHAR szMsg[] = TEXT("Message from first process");
-HANDLE WINAPI mutex;
-void main()
-{
-	HANDLE hMapFile;
-	LPCTSTR pBuf;
-	mutex = CreateMutex(NULL, false, TEXT("SyncMutex"));
-	// create a memory, wicth two proccess will be working
-	hMapFile = CreateFileMapping(
-		INVALID_HANDLE_VALUE, // использование файла подкачки
-		NULL, // защита по умолчанию
-		PAGE_READWRITE, // доступ к чтению/записи
-		0, // макс. размер объекта
-		BUF_SIZE, // размер буфера
-		szName); // имя отраженного в памяти объекта
-	if (hMapFile == NULL || hMapFile == INVALID_HANDLE_VALUE)
-	{
-		printf("Не может создать отраженный в памяти объект (%d).\n",
-			GetLastError());
-		return;
-	}
-	pBuf = (LPTSTR)MapViewOfFile(hMapFile, //дескриптор проецируемого в памяти объекта
-		FILE_MAP_ALL_ACCESS, // разрешение чтения/записи(режим доступа)
-		0, //Старшее слово смещения файла, где начинается отображение
-		0, //Младшее слово смещения файла, где начинается отображение
-		BUF_SIZE); //Число отображаемых байтов файла
-	if (pBuf == NULL)
-	{
-		printf("Представление проецированного файла невозможно (%d).\n",
-			GetLastError());
-		return;
-	}
-	int i = 0;
-	while (true)
-	{
-		i = rand();
-		itoa(i, (char *)szMsg, 10);
-		WaitForSingleObject(mutex, INFINITE);
-		CopyMemory((PVOID)pBuf, szMsg, sizeof(szMsg));
-		printf("write message: %s\n", (char *)pBuf);
-		//Sleep(1000); //необходимо только для отладки - для удобства представления и анализа //результатов
-		ReleaseMutex(mutex);
-	}
-	// освобождение памяти и закрытие описателя handle
-	UnmapViewOfFile(pBuf);
-	CloseHandle(hMapFile);
-	CloseHandle(mutex);
-}
-	\end{lstlisting}	
+	\lstinputlisting[style=crs_cpp]{shmem_writer.cpp}
 	
 	Исходный код второй программы:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h>
-#include <stdio.h>
-#include <conio.h>
-#define BUF_SIZE 256
-#define TIME 15 // number of reading operation in this process
-TCHAR szName[] = TEXT("MyFileMappingObject");
-HANDLE WINAPI mutex;
-void main()
-{
-	HANDLE hMapFile;
-	LPCTSTR pBuf;
-	mutex = OpenMutex(
-		MUTEX_ALL_ACCESS, // request full access
-		FALSE, // handle not inheritable
-		TEXT("SyncMutex")); // object name
-	if (mutex == NULL)
-		printf("OpenMutex error: %d\n", GetLastError());
-	else printf("OpenMutex successfully opened the mutex.\n");
-	hMapFile = OpenFileMapping(
-		FILE_MAP_ALL_ACCESS, // доступ к чтению/записи
-		FALSE, // имя не наследуется
-		szName); // имя "проецируемого " объекта
-	if (hMapFile == NULL)
-	{
-		printf("Невозможно открыть объект проекция файла (%d).\n", GetLastError());
-		return;
-	}
-	pBuf = (LPTSTR)MapViewOfFile(hMapFile, // дескриптор "проецируемого" объекта
-		FILE_MAP_ALL_ACCESS, // разрешение чтения/записи
-		0,
-		0,
-		BUF_SIZE);
-	if (pBuf == NULL)
-	{
-		printf("Представление проецированного файла (%d) невозможно .\n", GetLastError());
-		return;
-	}
-	for (int i = 0; i<TIME; i++)
-	{
-		WaitForSingleObject(mutex, INFINITE);
-		printf("read message: %s\n", (char *)pBuf);
-		ReleaseMutex(mutex);
-	}
-	UnmapViewOfFile(pBuf);
-	CloseHandle(hMapFile);
-}
-	\end{lstlisting}
+	\lstinputlisting[style=crs_cpp]{shmem_reader.cpp}
 	
 	Результат выполнения программы приведен на рисунке \ref{img:task8}.
 	\begin{figure}[h!]
@@ -591,7 +490,7 @@ void main()
 	
 	Записываемая в буфер информация - это случайное число, которое генерируется функцией rand()перед каждой записью.
 	
-	Второй процесс открывает ранее созданный и именованный первым процессом мьютекс.
+	Сообщения извлекаются из памяти правильно, следовательно, система разделения доступа к памяти работает корректно.
 	
 \subsection{Почтовые слоты}
 	MailSlot – механизм синхронизации, иначе называемый «почтовый ящик». Каждый слот реализуется как псевдофайл в оперативной памяти и содержит некоторое количество записей («сообщений»), которые могут быть прочтены всеми компьютерами в сетевом домене. Общий размер данных не дможет превышать 64K. В отличие от дисковых файлов, файлы MailSlot временные. Когда все указатели на MailSlot закрываются, MailSlot и все данные, которые он содержит, удаляются. Для обмена посредством MailSlot создается клиент-серверное приложение. MailSlot сервер – является процессом, который создает и владеет MailSlot. При создании сервер получает указатель, используемый затем при чтении или записи данных им самим или другим процессом, получившим указатель на MailSlot. Создать слот можно только локально, а получать доступ (обращаться) и локально и удалённо.
