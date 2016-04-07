@@ -496,164 +496,65 @@ DWORD WINAPI threadHandler(LPVOID param){
 	MailSlot – механизм синхронизации, иначе называемый «почтовый ящик». Каждый слот реализуется как псевдофайл в оперативной памяти и содержит некоторое количество записей («сообщений»), которые могут быть прочтены всеми компьютерами в сетевом домене. Общий размер данных не дможет превышать 64K. В отличие от дисковых файлов, файлы MailSlot временные. Когда все указатели на MailSlot закрываются, MailSlot и все данные, которые он содержит, удаляются. Для обмена посредством MailSlot создается клиент-серверное приложение. MailSlot сервер – является процессом, который создает и владеет MailSlot. При создании сервер получает указатель, используемый затем при чтении или записи данных им самим или другим процессом, получившим указатель на MailSlot. Создать слот можно только локально, а получать доступ (обращаться) и локально и удалённо.
 	
 	Для демонстрации работы с почтовыми слотами были написаны программы сервера и клиента.	Исходный сервера:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h>
-#include <stdio.h>
-#include <conio.h>
-
-int main() {
-	// Код возврата из функций
-	BOOL   fReturnCode;
-	// Размер сообщения в байтах
-	DWORD  cbMessages;
-	// Количество сообщений в канале Mailslot
-	DWORD  cbMsgNumber;
-	// Идентификатор канала Mailslot
-	HANDLE hMailslot;
-	// Имя создаваемого канала Mailslot
-	LPCWSTR  lpszMailslotName = L"\\\\.\\mailslot\\$Channel$";
-	// Буфер для передачи данных через канал
-	char   szBuf[512];
-	// Количество байт данных, принятых через канал
-	DWORD  cbRead;
-	
-	// Создаем канал Mailslot, имеющий имя lpszMailslotName
-	hMailslot = CreateMailslot(
-		lpszMailslotName, 0,
-		MAILSLOT_WAIT_FOREVER, NULL);
-
-	// Если возникла ошибка, выводим ее код и зваершаем
-	// работу приложения
-	if (hMailslot == INVALID_HANDLE_VALUE)
-	{
-		fprintf(stdout, "CreateMailslot: Error %ld\n",
-			GetLastError());
-		getch();
-		return 0;
-	}
-
-	// Выводим сообщение о создании канала
-	fprintf(stdout, "Mailslot created\n");
-
-	// Цикл получения команд через канал
-	while (1)
-	{
-		// Определяем состояние канала Mailslot
-		fReturnCode = GetMailslotInfo(
-			hMailslot, NULL, &cbMessages,
-			&cbMsgNumber, NULL);
-
-		if (!fReturnCode)
-		{
-			fprintf(stdout, "GetMailslotInfo: Error %ld\n",
-				GetLastError());
-			getch();
-			break;
-		}
-
-		// Если в канале есть Mailslot сообщения,
-		// читаем первое из них и выводим на экран
-		if (cbMsgNumber != 0)
-		{
-			if (ReadFile(hMailslot, szBuf, 512, &cbRead, NULL))
-			{
-				// Выводим принятую строку на консоль 
-				printf("Received: <%s>\n", szBuf);
-
-				// Если пришла команда "exit", 
-				// завершаем работу приложения
-				if (!strcmp(szBuf, "exit"))
-					break;
-			}
-			else
-			{
-				fprintf(stdout, "ReadFile: Error %ld\n",
-					GetLastError());
-				getch();
-				break;
-			}
-		}
-
-		// Выполняем задержку на  500 миллисекунд
-		Sleep(500);
-	}
-
-	// Перед завершением приложения закрываем
-	// идентификатор канала Mailslot
-	CloseHandle(hMailslot);
-	return 0;
-}
-	\end{lstlisting}	
+	\lstinputlisting[style=crs_cpp]{mailslot_server.cpp}
 	
 	Исходный код клиента:
-	\begin{lstlisting}[style=crs_cpp]
-#include <windows.h>
-#include <stdio.h>
-#include <conio.h>
-
-DWORD main(int argc, char *argv[])
-{
-	// Идентификатор канала Mailslot
-	HANDLE hMailslot;
-	// Буфер для имени канала Mailslot
-	LPCWSTR   szMailslotName = L"\\\\.\\mailslot\\$Channel$";
-	// Буфер для передачи данных через канал
-	char   szBuf[512];
-	// Количество байт, переданных через канал
-	DWORD  cbWritten;
-	// Создаем канал с процессом MSLOTS
-	hMailslot = CreateFile(
-		szMailslotName, GENERIC_WRITE,
-		FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-
-	// Если возникла ошибка, выводим ее код и 
-	// завершаем работу приложения
-	if (hMailslot == INVALID_HANDLE_VALUE)
-	{
-		fprintf(stdout, "CreateFile: Error %ld\n",
-			GetLastError());
-		getch();
-		return 0;
-	}
-
-	// Выводим сообщение о создании канала
-	fprintf(stdout, "\nConnected. Type 'exit' to terminate\n");
-
-	// Цикл посылки команд через канал
-	while (1)
-	{
-		// Выводим приглашение для ввода команды
-		printf("cmd>");
-
-		// Вводим текстовую строку
-		gets(szBuf);
-
-		// Передаем введенную строку серверному процессу
-		// в качестве команды
-		if (!WriteFile(hMailslot, szBuf, strlen(szBuf) + 1,
-			&cbWritten, NULL))
-			break;
-
-		// В ответ на команду "exit" завершаем цикл
-		// обмена данными с серверным процессом
-		if (!strcmp(szBuf, "exit"))
-			break;
-	}
-
-	// Закрываем идентификатор канала
-	CloseHandle(hMailslot);
-	return 0;
-}
-	\end{lstlisting}
+	\lstinputlisting[style=crs_cpp]{mailslot_client.cpp}
 	
-	Результат выполнения программы приведен на рисунке \ref{img:task9}.
+	Результат локального выполнения программ приведен на рисунке \ref{img:task9}.
 	\begin{figure}[h!]
 		\center{\includegraphics[scale=0.8]{task9}}
-		\caption{Результат работы}
+		\caption{Локальный запуск}
 		\label{img:task9}
 	\end{figure}
 	
-	Используя почтовые слоты можно передавать данные между компьютерами в локальной сети. При создании почтовых слотов с одинаковым именем на нескольких компьютерах домена возможна широковещательная рассылка сообщений клиентов. Один клиентский процесс может посылать сообщения сразу всем этим серверным процессам.
+	Используя почтовые слоты можно передавать данные между компьютерами в локальной сети. Для этого клиенту укажем имя основной машины "WIN-IS-HARD".
+	
+	Результат сетевого выполнения программ приведен на рисунках \ref{img:task9_net_local} и \ref{img:task9_net_remote}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task9_net}}
+		\caption{Сетевой запуск на локальной машине}
+		\label{img:task9_net_local}
+	\end{figure}
+
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task9_net_remote}}
+		\caption{Сетевой запуск на дополнительной машине}
+		\label{img:task9_net_remote}
+	\end{figure}
+	
+	Для подтверждения работы по сети был записан соответствующий трафик. Он представлен на рисунке \ref{img:task9_wire}
+	
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.9]{task9_wire}}
+		\caption{Запись трафика основной машиной}
+		\label{img:task9_wire}
+	\end{figure}
+	
+	Учитывая, что фильтрация была по протоколу, мы видим, что локальный трафик не выходит в сеть, а все попавшие в сеть пакеты соответствуют своему отправленному из дополнительной машины сообщению.\\
+	
+	При создании почтовых слотов с одинаковым именем на нескольких компьютерах домена возможна широковещательная рассылка сообщений клиентов. Один клиентский процесс может посылать сообщения сразу всем этим серверным процессам. Для этого заменим в клиенте имя компьютера на символ '*'. Запустим на каждой из машин по серверу и по широковещательному клиенту:
+	
+		Результат широковещательного выполнения программ приведен на рисунках \ref{img:task9_broad_local} и \ref{img:task9_broad_remote}.
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task9_broad_local}}
+		\caption{Широковещательный запуск на локальной машине}
+		\label{img:task9_broad_local}
+	\end{figure}
+
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.8]{task9_broad_remote}}
+		\caption{Широковещательный запуск на дополнительной машине}
+		\label{img:task9_broad_remote}
+	\end{figure}
+	
+	Для подтверждения работы по сети был записан соответствующий трафик. Он представлен на рисунке \ref{img:task9_broad_wire}
+	
+	\begin{figure}[h!]
+		\center{\includegraphics[scale=0.9]{task9_broad_wire}}
+		\caption{Запись трафика основной машиной}
+		\label{img:task9_broad_wire}
+	\end{figure}
 
 \section{Вывод}
 	В ОС Windows реализовано несколько средств межпроцессного взаимодействия. Некоторые из них совпадают с IPC в UNIX: неименованные и именованные каналы, сокеты, разделяемая память. Некоторые уникальны, например, почтовые слоты.
