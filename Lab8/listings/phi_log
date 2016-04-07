@@ -1,0 +1,36 @@
+createConfig:
+ NumOfreadrs = 3 | ReadersDelay= 1 | NumOfwriters= 4 | WritersDelay = 1 | sizeofqueue = 5 | ttl = 3
+create writers
+count= 0
+count= 1
+count= 2
+count= 3
+create TimeManager
+count= 4
+successfully created threads
+philosopher 0: thinks
+philosopher 3: thinks
+philosopher 2: thinks
+philosopher 1: thinks
+philosopher 0: allowed to eat
+philosopher 2: allowed to eat
+philosopher 0: took the right fork
+philosopher 3: allowed to eat
+philosopher 0: took the left fork
+philosopher 2: took the right fork
+philosopher 1: allowed to eat
+philosopher 0: EATS 1 times
+philosopher 3: took the right fork
+philosopher 2: took the right fork
+philosopher 2: took the left fork
+….
+philosopher 0: EATS 15 times
+philosopher 1: put the left fork
+philosopher 2: allowed to eat
+philosopher 2: took the right fork
+philosopher 2: took the left fork
+philosopher 2: EATS 15 times
+philosopher 0: put the right fork
+philosopher 0: put the left fork
+philosopher 2: put the right fork
+philosopher 2: put the left fork

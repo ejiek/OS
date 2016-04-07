@@ -1,0 +1,42 @@
+createConfig:
+ NumOfreadrs = 3 | ReadersDelay= 1 | NumOfwriters= 4 | WritersDelay = 1 | sizeofqueue = 5 | ttl = 3
+create readers
+count= 0
+count= 1
+count= 2
+create writers
+count= 3
+count= 4
+count= 5
+count= 6
+create TimeManager
+count= 7
+successfully created threads
+Writer 2 put data: "writer_id = 2 numMsg=   0" in position 0
+Writer 0 put data: "writer_id = 0 numMsg=   0" in position 1
+Writer 1 put data: "writer_id = 1 numMsg=   0" in position 2
+Writer 3 put data: "writer_id = 3 numMsg=   0" in position 3
+Reader 2 get data: "writer_id = 2 numMsg=   0" from position 0
+Writer 2 put data: "writer_id = 2 numMsg=   1" in position 4
+Reader 1 get data: "writer_id = 0 numMsg=   0" from position 1
+Reader 0 get data: "writer_id = 1 numMsg=   0" from position 2
+Writer 0 put data: "writer_id = 0 numMsg=   1" in position 0
+Reader 2 get data: "writer_id = 3 numMsg=   0" from position 3
+Writer 1 put data: "writer_id = 1 numMsg=   1" in position 1
+Writer 3 put data: "writer_id = 3 numMsg=   1" in position 2
+Writer 2 put data: "writer_id = 2 numMsg=   2" in position 3
+Reader 0 get data: "writer_id = 2 numMsg=   1" from position 4
+Writer 0 put data: "writer_id = 0 numMsg=   2" in position 4
+Reader 1 get data: "writer_id = 0 numMsg=   1" from position 0
+Reader 2 get data: "writer_id = 1 numMsg=   1" from position 1
+Writer 3 put data: "writer_id = 3 numMsg=   2" in position 0
+Writer 1 put data: "writer_id = 1 numMsg=   2" in position 1
+TimeManager finishing work
+Writer 2 finishing work
+Reader 1 finishing work
+Writer 0 finishing work
+Reader 0 finishing work
+Reader 2 finishing work
+Writer 3 finishing work
+Writer 1 finishing work
+all is done
