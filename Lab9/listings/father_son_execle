@@ -1,0 +1,15 @@
+./father 
+
+FATHER PARAM: pid = 5782, ppid = 18110
+
+
+ Son param: pid = 5783, ppid = 5782
+  PID TTY      STAT   TIME COMMAND
+15269 tty2     Sl+    3:06 /usr/libexec/gnome-terminal-server
+20805 pts/1    Ss     0:00  \_ bash
+18110 pts/2    Ss     0:01  \_ bash
+ 5782 pts/2    S+     0:00  |   \_ ./father
+ 5783 pts/2    S+     0:00  |       \_ son
+ 5784 pts/2    R+     0:00  |       \_ ps xf
+18182 pts/3    Ss+    0:00  \_ bash
+

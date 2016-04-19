@@ -1,0 +1,16 @@
+$ gcc father.c -o father ; gcc son.c -o son
+$ ./father
+
+FATHER PARAM: pid = 8465, ppid = 18110
+
+
+ Son param: pid = 8466, ppid = 8465
+  PID TTY      STAT   TIME COMMAND
+15269 tty2     Sl+    2:58 /usr/libexec/gnome-terminal-server
+20805 pts/1    Ss+    0:00  \_ bash
+18110 pts/2    Ss     0:01  \_ bash
+ 8465 pts/2    S+     0:00  |   \_ ./father
+ 8466 pts/2    S+     0:00  |       \_ son
+ 8467 pts/2    R+     0:00  |       \_ ps xf
+18182 pts/3    Ss+    0:00  \_ bash
+

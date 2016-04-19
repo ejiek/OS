@@ -1,0 +1,28 @@
+$ ./a.out 
+Main thread: SCHED_OTHER
+Main thread: create thread 1
+Thread 1: SCHED_OTHER
+Main thread: switch policy to SCHED_FIFO
+Main thread: SCHED__FIFO
+Thread 1: SCHED_OTHER
+
+Main thread: create thread 2
+Main thread: SCHED__FIFO
+Thread 2: SCHED__FIFO
+Thread 2: change policy to SCHED_RR
+Thread 2: SCHED_RR
+Main thread: SCHED__FIFO
+
+Main thread: create thread 3
+Main thread: SCHED__FIFO
+Thread 3: change policy to SCHED_OTHER by group id
+Thread 3: SCHED__FIFO
+Main thread: SCHED_OTHER
+
+Main thread: SCHED_OTHER
+Thread 4: SCHED_OTHER
+waiting for other procces to change my policy
+My PID: 1708
+Thread 4: SCHED_OTHER
+Main thread: SCHED__FIFO
+

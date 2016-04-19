@@ -1,0 +1,7 @@
+$ ./father 
+
+
+ FATHER PARAM pid=9526 ppid=7562
+
+ SON PARAM: pid=9527 ppid=9526 
+$ SON PARAM: pid=11669 ppid=1 

@@ -1,0 +1,19 @@
+$ nice
+0
+$ su
+Password:
+$ nice
+0
+$ nice /bin/bash
+$ nice
+10
+$ nice -n 9 /bin/bash
+$ nice
+19
+$ nice -n -30 /bin/bash
+$ nice
+-11
+$ nice -n -9 /bin/bash
+$ nice
+-20
+

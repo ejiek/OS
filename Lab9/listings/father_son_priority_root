@@ -1,0 +1,27 @@
+$ ./father 
+
+FATHER PARAM: pid = 3677, ppid = 3576
+
+father
+father
+father
+father
+father
+father
+father
+father
+father
+father
+
+Son param: pid = 3678, ppid = 3677
+son
+son
+son
+son
+son
+son
+son
+son
+son
+son
+

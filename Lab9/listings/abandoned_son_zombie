@@ -1,0 +1,13 @@
+$ ./father 
+
+
+ FATHER PARAM pid=4271 ppid=7562
+
+ SON PARAM: pid=4272 ppid=4271 
+  PID TTY      STAT   TIME COMMAND
+ 7553 ?        Sl     0:07 /usr/bin/python /usr/bin/terminator
+ 7562 pts/1    Ss     0:02  \_ /bin/zsh
+ 4271 pts/1    S+     0:00      \_ ./father
+ 4272 pts/1    Z+     0:00          \_ [son] <defunct>
+ 4341 pts/1    R+     0:00          \_ ps fx
+

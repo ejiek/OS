@@ -1,0 +1,25 @@
+$ ./a.out 
+Father process, pid=23228, ppid=15597
+father
+father
+Son process, pid=23229, ppid=23228
+son
+son
+father
+father
+son
+son
+son
+father
+father
+father
+son
+son
+son
+son
+father
+father
+father
+son
+Process finished 23229
+Process finished 23228

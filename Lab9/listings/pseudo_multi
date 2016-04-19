@@ -1,0 +1,6 @@
+$ gcc -pthread pseudo_multi.c
+$ ./a.out
+Father process, pid=823, ppid=821
+Process finished 823
+Son process, pid=825, ppid=823
+Process finished 825

@@ -1,0 +1,8 @@
+$ ps -aLf | grep mthreads
+ejiek    23077  3847 23077  0    3 11:50 pts/0    00:00:00 ./mthreads
+ejiek    23077  3847 23078  0    3 11:50 pts/0    00:00:00 ./mthreads
+ejiek    23077  3847 23079  0    3 11:50 pts/0    00:00:00 ./mthreads
+$ ps -aLf | grep mthreads
+ejiek    23077  3847 23077  0    2 11:50 pts/0    00:00:00 ./mthreads
+ejiek    23077  3847 23078  0    2 11:50 pts/0    00:00:00 ./mthreads
+

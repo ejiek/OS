@@ -1,0 +1,8 @@
+$ ./son3&
+[1] 25480
+SON PARAM: pid=25480 ppid=7562 
+$ ./father 25480 
+FATHER PARAM pid=25780 ppid=7562
+Signal SIGUSR1 sent. Current time and date: Thu Mar 10 08:54:06 2016
+Signal SIGUSR1 accepted. Current time and date: Thu Mar 10 08:54:06 2016
+[1]  + 25480 done       ./son3
